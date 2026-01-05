@@ -1,1 +1,646 @@
+/* 超级马里奥风格 */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+.q-font-title {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-weight: normal;
+  font-size: 1.8rem;
+  color: #FF0000;
+  text-shadow: 
+    4px 4px 0px #000000,
+    8px 8px 0px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
+  line-height: 1.6;
+  image-rendering: pixelated;
+  transform: scale(1);
+}
+
+.q-font-button {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-weight: normal;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  image-rendering: pixelated;
+}
+
+.q-font-text {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-weight: normal;
+  font-size: 0.6rem;
+  letter-spacing: 0.5px;
+  line-height: 1.8;
+  image-rendering: pixelated;
+}
+
+.gomoku-game {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #87CEEB 0%, #5FA8D3 50%, #4A90E2 100%);
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.1) 2px, rgba(255,255,255,.1) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,.1) 2px, rgba(255,255,255,.1) 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  image-rendering: pixelated;
+}
+
+.gomoku-container {
+  background: #FFE5B4;
+  border: 4px solid #8B4513;
+  border-radius: 0;
+  padding: 30px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 
+    8px 8px 0px #654321,
+    inset 0 0 0 4px #FFE5B4;
+  position: relative;
+  image-rendering: pixelated;
+}
+
+.gomoku-container::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: #8B4513;
+  z-index: -1;
+  border-radius: 0;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.game-header h1 {
+  margin: 0;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reset-button,
+.history-button {
+  padding: 12px 20px;
+  font-size: 0.65rem;
+  font-weight: normal;
+  color: #FFFFFF;
+  background: #FF6B35;
+  border: 3px solid #000000;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 4px 4px 0px #000000;
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  position: relative;
+}
+
+.reset-button:hover,
+.history-button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+  background: #FF8C5A;
+}
+
+.reset-button:active,
+.history-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+.game-info {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.current-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.7rem;
+  font-weight: normal;
+  color: #000000;
+  background: #FFFFFF;
+  padding: 15px;
+  border: 3px solid #000000;
+  border-radius: 0;
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.player-indicator {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border-radius: 0;
+  border: 2px solid #000000;
+  image-rendering: pixelated;
+}
+
+.player-indicator.black {
+  color: #000000;
+  background: #000000;
+}
+
+.player-indicator.white {
+  color: #000000;
+  background: #FFFFFF;
+  border: 2px solid #000000;
+}
+
+.winner-message {
+  padding: 25px;
+  background: #FFD700;
+  border: 4px solid #000000;
+  border-radius: 0;
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.winner-message h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: #FF0000;
+  text-shadow: 3px 3px 0px #000000;
+  animation: marioBounce 0.5s ease-in-out infinite;
+}
+
+@keyframes marioBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.board-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  overflow-x: auto;
+  padding: 20px 0;
+  background: #8B7355;
+  border: 4px solid #654321;
+  border-radius: 0;
+  box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.gomoku-board {
+  display: inline-block;
+  background: #DEB887;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: 3px solid #8B4513;
+  position: relative;
+  width: calc(30px * 15);
+  height: calc(30px * 15);
+  image-rendering: pixelated;
+}
+
+/* 绘制网格线 - 像素风格 */
+.gomoku-board::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 14.5px,
+      #8B4513 14.5px,
+      #8B4513 15.5px,
+      transparent 15.5px,
+      transparent 30px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 14.5px,
+      #8B4513 14.5px,
+      #8B4513 15.5px,
+      transparent 15.5px,
+      transparent 30px
+    );
+  pointer-events: none;
+  z-index: 0;
+  image-rendering: pixelated;
+}
+
+.board-row {
+  display: flex;
+  position: relative;
+  z-index: 1;
+}
+
+.intersection {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.intersection::before {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #654321;
+  border-radius: 0;
+  z-index: 1;
+  opacity: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  image-rendering: pixelated;
+}
+
+.board-row:nth-child(4) .intersection:nth-child(4)::before,
+.board-row:nth-child(4) .intersection:nth-child(12)::before,
+.board-row:nth-child(12) .intersection:nth-child(4)::before,
+.board-row:nth-child(12) .intersection:nth-child(12)::before {
+  opacity: 0.6;
+  width: 4px;
+  height: 4px;
+}
+
+.intersection:hover::before {
+  display: none;
+}
+
+.intersection.last-move::before {
+  display: none;
+}
+
+.stone {
+  width: 22px;
+  height: 22px;
+  border-radius: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  box-shadow: 
+    2px 2px 0px rgba(0, 0, 0, 0.3),
+    inset -2px -2px 0px rgba(255, 255, 255, 0.3);
+  transition: none;
+  margin: 0;
+  image-rendering: pixelated;
+  border: 2px solid #000000;
+}
+
+.stone.black {
+  background: #1a1a1a;
+  border-color: #000000;
+}
+
+.stone.white {
+  background: #FFFFFF;
+  border-color: #000000;
+}
+
+.intersection:has(.stone):hover .stone {
+  transform: translate(-50%, -50%);
+}
+
+/* 获胜线样式 - 像素风格 */
+.winning-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.winning-line line {
+  stroke: #FF0000;
+  stroke-width: 5;
+  stroke-linecap: square;
+  animation: drawLine 0.5s ease-out;
+  filter: drop-shadow(2px 2px 0px #000000);
+}
+
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 历史记录面板 - 马里奥风格 */
+.history-panel {
+  background: #FFFFFF;
+  border: 4px solid #000000;
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 25px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 6px 6px 0px #000000;
+  image-rendering: pixelated;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #000000;
+}
+
+.history-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #FF0000;
+  text-shadow: 2px 2px 0px #000000;
+}
+
+.close-history {
+  background: #FF6B35;
+  border: 3px solid #000000;
+  font-size: 1.2rem;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 5px 10px;
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: all 0.1s ease;
+  box-shadow: 3px 3px 0px #000000;
+  font-family: 'Courier New', monospace;
+}
+
+.close-history:hover {
+  background: #FF8C5A;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.no-history {
+  text-align: center;
+  color: #666666;
+  padding: 40px 20px;
+  font-size: 0.7rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  background: #F0F0F0;
+  border: 3px solid #000000;
+  border-radius: 0;
+  padding: 15px;
+  transition: all 0.1s ease;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.history-item:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+  background: #FFE5B4;
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.history-date {
+  color: #666666;
+  font-size: 0.55rem;
+}
+
+.history-winner {
+  font-weight: normal;
+  padding: 5px 10px;
+  border-radius: 0;
+  font-size: 0.6rem;
+  border: 2px solid #000000;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+}
+
+.history-winner.player-win {
+  background: #4CAF50;
+  color: #FFFFFF;
+}
+
+.history-winner.ai-win {
+  background: #FF6B35;
+  color: #FFFFFF;
+}
+
+.history-item-details {
+  display: flex;
+  gap: 15px;
+  font-size: 0.55rem;
+  color: #333333;
+}
+
+.clear-history-button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: #FF6B35;
+  border: 3px solid #000000;
+  border-radius: 0;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 4px 4px 0px #000000;
+  text-transform: uppercase;
+}
+
+.clear-history-button:hover {
+  background: #FF8C5A;
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.clear-history-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+.game-rules {
+  background: #FFFFFF;
+  padding: 20px;
+  border-radius: 0;
+  margin-top: 25px;
+  border: 4px solid #000000;
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.game-rules h3 {
+  color: #0000FF;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  font-weight: normal;
+  text-shadow: 2px 2px 0px #000000;
+}
+
+.game-rules ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #333333;
+  line-height: 2;
+  font-size: 0.6rem;
+}
+
+.game-rules li {
+  margin-bottom: 8px;
+}
+
+/* 滚动条样式 - 像素风格 */
+.history-panel::-webkit-scrollbar {
+  width: 12px;
+}
+
+.history-panel::-webkit-scrollbar-track {
+  background: #F0F0F0;
+  border: 2px solid #000000;
+}
+
+.history-panel::-webkit-scrollbar-thumb {
+  background: #FF6B35;
+  border: 2px solid #000000;
+  border-radius: 0;
+}
+
+@media (max-width: 768px) {
+  .gomoku-container {
+    padding: 20px;
+  }
+
+  .q-font-title {
+    font-size: 1.2rem;
+  }
+
+  .game-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .header-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .gomoku-board {
+    width: calc(25px * 15);
+    height: calc(25px * 15);
+  }
+
+  .gomoku-board::before {
+    background-image: 
+      repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent 11.5px,
+        #8B4513 11.5px,
+        #8B4513 12.5px,
+        transparent 12.5px,
+        transparent 25px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 11.5px,
+        #8B4513 11.5px,
+        #8B4513 12.5px,
+        transparent 12.5px,
+        transparent 25px
+      );
+  }
+
+  .intersection {
+    width: 25px;
+    height: 25px;
+  }
+
+  .stone {
+    width: 20px;
+    height: 20px;
+  }
+
+  .history-item-details {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gomoku-board {
+    width: calc(20px * 15);
+    height: calc(20px * 15);
+  }
+
+  .gomoku-board::before {
+    background-image: 
+      repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent 9px,
+        #8B4513 9px,
+        #8B4513 10px,
+        transparent 10px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 9px,
+        #8B4513 9px,
+        #8B4513 10px,
+        transparent 10px,
+        transparent 20px
+      );
+  }
+
+  .intersection {
+    width: 20px;
+    height: 20px;
+  }
+
+  .stone {
+    width: 18px;
+    height: 18px;
+  }
+}
