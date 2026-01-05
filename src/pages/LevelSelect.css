@@ -1,0 +1,158 @@
+.level-select-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.level-select-content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  width: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 144, 255, 0.15) 0%,
+    rgba(0, 68, 136, 0.25) 100%
+  );
+  border-radius: 30px;
+  padding: 50px 40px;
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(135, 206, 250, 0.3);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(135, 206, 250, 0.2);
+  text-align: center;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #ffffff;
+  background: rgba(30, 144, 255, 0.3);
+  border: 2px solid rgba(135, 206, 250, 0.5);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back-button:hover {
+  background: rgba(30, 144, 255, 0.5);
+  border-color: rgba(135, 206, 250, 0.8);
+  transform: translateX(-5px);
+}
+
+.level-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #FFD700;
+  text-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.character-preview {
+  margin: 40px 0;
+}
+
+.character-icon {
+  font-size: 8rem;
+  margin-bottom: 20px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+}
+
+.character-name {
+  font-size: 2rem;
+  color: #E0F6FF;
+  font-weight: 600;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.level-description {
+  margin: 30px 0;
+  color: #B0E0E6;
+  font-size: 1.2rem;
+  line-height: 2;
+}
+
+.start-level-button,
+.play-story-button {
+  margin-top: 30px;
+  padding: 18px 50px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1E90FF 0%, #00BFFF 50%, #87CEEB 100%);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 10px 30px rgba(30, 144, 255, 0.4),
+    0 0 20px rgba(135, 206, 250, 0.6);
+}
+
+.start-level-button:hover,
+.play-story-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 
+    0 15px 40px rgba(30, 144, 255, 0.6),
+    0 0 30px rgba(135, 206, 250, 0.8);
+}
+
+.level-completed {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 2px solid rgba(76, 175, 80, 0.5);
+  border-radius: 15px;
+}
+
+.level-completed p {
+  color: #4CAF50;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .level-select-content {
+    padding: 30px 20px;
+  }
+
+  .level-title {
+    font-size: 2rem;
+  }
+
+  .character-icon {
+    font-size: 6rem;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

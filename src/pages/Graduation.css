@@ -1,0 +1,445 @@
+.graduation-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  position: relative;
+}
+
+.graduation-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.graduation-header {
+  text-align: center;
+  margin-bottom: 60px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.graduation-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6);
+  color: #FFD700;
+}
+
+.graduation-subtitle {
+  font-size: 1.5rem;
+  color: #B0E0E6;
+  text-shadow: 0 2px 10px rgba(176, 224, 230, 0.5);
+}
+
+.ceremony-scene {
+  margin: 60px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 300px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 215, 0, 0.2) 0%,
+    rgba(30, 144, 255, 0.3) 50%,
+    rgba(0, 68, 136, 0.4) 100%
+  );
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 0 50px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.stage-lights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.light {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: float 4s ease-in-out infinite;
+}
+
+.light-1 {
+  background: rgba(255, 107, 157, 0.4);
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.light-2 {
+  background: rgba(78, 205, 196, 0.4);
+  top: 10%;
+  right: 10%;
+  animation-delay: 1.5s;
+}
+
+.light-3 {
+  background: rgba(255, 230, 109, 0.4);
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 3s;
+}
+
+.stage-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.principal {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+}
+
+.stage-text {
+  font-size: 1.3rem;
+  color: #E0F6FF;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.stories-section {
+  margin: 80px 0;
+}
+
+.stories-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.stories-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  flex: 1;
+}
+
+.new-story-button {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border: 2px solid rgba(255, 215, 0, 0.8);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.new-story-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+}
+
+.stories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.story-card {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 144, 255, 0.2) 0%,
+    rgba(0, 68, 136, 0.3) 100%
+  );
+  border: 2px solid var(--story-color);
+  border-radius: 20px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.story-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    var(--story-color) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.story-card:hover::before {
+  opacity: 0.2;
+}
+
+.story-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 30px var(--story-color);
+  border-color: var(--story-color);
+}
+
+.story-card-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--story-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  filter: blur(30px);
+  opacity: 0;
+  transition: all 0.6s ease;
+}
+
+.story-card:hover .story-card-glow {
+  width: 200px;
+  height: 200px;
+  opacity: 0.4;
+}
+
+.story-number {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: var(--story-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #ffffff;
+  box-shadow: 0 0 15px var(--story-color);
+}
+
+.story-card-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #ffffff;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.story-card-description {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #E0F6FF;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.story-card-button {
+  position: relative;
+  z-index: 1;
+  color: var(--story-color);
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.story-card:hover .story-card-button {
+  transform: translateX(10px);
+  text-shadow: 0 0 10px var(--story-color);
+}
+
+.story-card.locked {
+  opacity: 0.6;
+  cursor: pointer;
+  position: relative;
+}
+
+.story-card.locked:hover {
+  opacity: 0.8;
+}
+
+.lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+}
+
+.lock-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: float 2s ease-in-out infinite;
+}
+
+.lock-overlay p {
+  color: #FFD700;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.user-story {
+  border: 3px dashed var(--story-color);
+}
+
+.user-story-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  z-index: 5;
+}
+
+.back-button {
+  display: block;
+  margin: 40px auto 0;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  color: #ffffff;
+  background: rgba(30, 144, 255, 0.3);
+  border: 2px solid rgba(135, 206, 250, 0.5);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 40px;
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+
+.aquarium-button {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF8E9B 100%) !important;
+  border: 2px solid rgba(255, 107, 157, 0.8) !important;
+  border-radius: 25px;
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto !important;
+  user-select: none;
+}
+
+.aquarium-button:hover {
+  background: linear-gradient(135deg, #FF8E9B 0%, #FF6B9D 100%);
+  border-color: rgba(255, 107, 157, 0.8);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(255, 107, 157, 0.6);
+}
+
+.report-button {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #FF4757 0%, #FF6B9D 100%) !important;
+  border: 2px solid rgba(255, 71, 87, 0.8) !important;
+  border-radius: 25px;
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4);
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto !important;
+  user-select: none;
+  font-weight: 600;
+}
+
+.report-button:hover {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF4757 100%) !important;
+  border-color: rgba(255, 71, 87, 1) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(255, 71, 87, 0.6);
+}
+
+.back-button:hover {
+  background: rgba(30, 144, 255, 0.5);
+  border-color: rgba(135, 206, 250, 0.8);
+  transform: translateX(-5px);
+  box-shadow: 0 5px 20px rgba(30, 144, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+  .graduation-title {
+    font-size: 2.5rem;
+  }
+  
+  .stories-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stage {
+    height: 250px;
+  }
+  
+  .principal {
+    font-size: 4rem;
+  }
+}
+
