@@ -409,10 +409,12 @@ const GomokuGame = () => {
 
   // 计算获胜线的SVG坐标（精确从第一个子中心到最后一个子中心）
   const getWinningLinePath = () => {
-    if (!winningLine || winningLine.length < 2) return null
+    if (!winningLine || winningLine.length < 5) return null
     
-    const first = winningLine[0]
-    const last = winningLine[winningLine.length - 1]
+    // 确保使用前5个元素（checkWin返回的slice(0, 5)）
+    const line = winningLine.slice(0, 5)
+    const first = line[0]
+    const last = line[line.length - 1]
     
     // 直接计算第一个和最后一个点的中心坐标（精确对齐棋子中心）
     const x1 = first.col * CELL_SIZE + CELL_SIZE / 2
