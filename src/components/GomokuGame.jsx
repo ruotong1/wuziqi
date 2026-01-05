@@ -406,38 +406,18 @@ const GomokuGame = () => {
     return lastMove && lastMove.row === row && lastMove.col === col
   }, [lastMove])
 
-  // 计算获胜线的SVG坐标（延长线条使其超出五个子的范围）
+  // 计算获胜线的SVG坐标（精确从第一个子中心到最后一个子中心）
   const getWinningLinePath = () => {
     if (!winningLine || winningLine.length < 2) return null
     
     const first = winningLine[0]
     const last = winningLine[winningLine.length - 1]
     
-    // 计算方向向量（以格子为单位）
-    const dx = last.col - first.col
-    const dy = last.row - first.row
-    
-    // 计算第一个和最后一个点的中心坐标
-    const firstX = first.col * CELL_SIZE + CELL_SIZE / 2
-    const firstY = first.row * CELL_SIZE + CELL_SIZE / 2
-    const lastX = last.col * CELL_SIZE + CELL_SIZE / 2
-    const lastY = last.row * CELL_SIZE + CELL_SIZE / 2
-    
-    // 计算方向向量的长度（像素）
-    const pixelDx = lastX - firstX
-    const pixelDy = lastY - firstY
-    const pixelLength = Math.sqrt(pixelDx * pixelDx + pixelDy * pixelDy)
-    
-    // 归一化方向向量
-    const unitDx = pixelLength > 0 ? pixelDx / pixelLength : 1
-    const unitDy = pixelLength > 0 ? pixelDy / pixelLength : 0
-    
-    // 延长线条，使其超出五个子的范围（延长约1.5个格子）
-    const extend = CELL_SIZE * 1.5
-    const x1 = firstX - unitDx * extend
-    const y1 = firstY - unitDy * extend
-    const x2 = lastX + unitDx * extend
-    const y2 = lastY + unitDy * extend
+    // 直接计算第一个和最后一个点的中心坐标（精确对齐棋子中心）
+    const x1 = first.col * CELL_SIZE + CELL_SIZE / 2
+    const y1 = first.row * CELL_SIZE + CELL_SIZE / 2
+    const x2 = last.col * CELL_SIZE + CELL_SIZE / 2
+    const y2 = last.row * CELL_SIZE + CELL_SIZE / 2
     
     return { x1, y1, x2, y2 }
   }
@@ -559,15 +539,6 @@ const GomokuGame = () => {
           </div>
         )}
 
-        <div className="game-rules q-font-text">
-          <h3 className="q-font-title">游戏规则</h3>
-          <ul>
-            <li>黑棋先行，双方轮流在交叉点下棋</li>
-            <li>先在横、竖、斜任意方向连成五子的一方获胜</li>
-            <li>每局游戏随机决定先手</li>
-            <li>你与AI对战</li>
-          </ul>
-        </div>
       </div>
     </div>
   )
