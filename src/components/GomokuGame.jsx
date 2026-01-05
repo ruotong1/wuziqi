@@ -261,8 +261,11 @@ const GomokuGame = () => {
     setCurrentPlayer(BLACK) // 总是黑棋先手
     setMoveHistory([])
     
-    // 如果AI是黑棋，先下第一步
+    // 如果玩家是黑棋，玩家先手
     if (randomFirst === BLACK) {
+      setIsPlayerTurn(true)
+    } else {
+      // 如果玩家是白棋，AI先手（因为AI是黑棋）
       setIsPlayerTurn(false)
       setTimeout(() => {
         setBoard(prevBoard => {
@@ -283,8 +286,6 @@ const GomokuGame = () => {
           return newBoard
         })
       }, 500)
-    } else {
-      setIsPlayerTurn(true)
     }
   }, [])
 
@@ -507,7 +508,7 @@ const GomokuGame = () => {
         {showHistory && (
           <div className="history-panel">
             <div className="history-header">
-              <h3 className="q-font-title">历史记录</h3>
+              <h3>历史记录</h3>
               <button className="close-history q-font-button" onClick={() => setShowHistory(false)}>✕</button>
             </div>
             {gameHistory.length === 0 ? (

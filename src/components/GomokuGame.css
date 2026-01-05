@@ -364,6 +364,7 @@
   display: flex;
   position: relative;
   z-index: 1;
+  width: 100%;
 }
 
 .intersection {
@@ -372,6 +373,7 @@
   cursor: pointer;
   position: relative;
   box-sizing: border-box;
+  display: block;
 }
 
 .intersection::before {
@@ -488,9 +490,10 @@
 
 .history-header h3 {
   margin: 0;
-  font-size: 1rem;
-  color: #FF0000;
-  text-shadow: 2px 2px 0px #000000;
+  font-size: 0.9rem;
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  color: #000000;
+  font-weight: normal;
 }
 
 .close-history {
