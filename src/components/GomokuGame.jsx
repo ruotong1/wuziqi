@@ -418,6 +418,7 @@ const GomokuGame = () => {
     
     // SVG坐标系统：x是水平方向（对应col），y是垂直方向（对应row）
     // 计算第一个和最后一个点的中心坐标（精确对齐棋子中心）
+    // 注意：board[row][col]，所以col对应x（水平），row对应y（垂直）
     const x1 = first.col * CELL_SIZE + CELL_SIZE / 2
     const y1 = first.row * CELL_SIZE + CELL_SIZE / 2
     const x2 = last.col * CELL_SIZE + CELL_SIZE / 2
