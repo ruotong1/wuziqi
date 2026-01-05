@@ -406,18 +406,38 @@ const GomokuGame = () => {
     return lastMove && lastMove.row === row && lastMove.col === col
   }, [lastMove])
 
-  // 计算获胜线的SVG坐标
+  // 计算获胜线的SVG坐标（延长线条使其超出五个子的范围）
   const getWinningLinePath = () => {
     if (!winningLine || winningLine.length < 2) return null
     
     const first = winningLine[0]
     const last = winningLine[winningLine.length - 1]
     
-    // 计算交叉点的中心坐标（相对于棋盘）
-    const x1 = first.col * CELL_SIZE + CELL_SIZE / 2
-    const y1 = first.row * CELL_SIZE + CELL_SIZE / 2
-    const x2 = last.col * CELL_SIZE + CELL_SIZE / 2
-    const y2 = last.row * CELL_SIZE + CELL_SIZE / 2
+    // 计算方向向量（以格子为单位）
+    const dx = last.col - first.col
+    const dy = last.row - first.row
+    
+    // 计算第一个和最后一个点的中心坐标
+    const firstX = first.col * CELL_SIZE + CELL_SIZE / 2
+    const firstY = first.row * CELL_SIZE + CELL_SIZE / 2
+    const lastX = last.col * CELL_SIZE + CELL_SIZE / 2
+    const lastY = last.row * CELL_SIZE + CELL_SIZE / 2
+    
+    // 计算方向向量的长度（像素）
+    const pixelDx = lastX - firstX
+    const pixelDy = lastY - firstY
+    const pixelLength = Math.sqrt(pixelDx * pixelDx + pixelDy * pixelDy)
+    
+    // 归一化方向向量
+    const unitDx = pixelLength > 0 ? pixelDx / pixelLength : 1
+    const unitDy = pixelLength > 0 ? pixelDy / pixelLength : 0
+    
+    // 延长线条，使其超出五个子的范围（延长约1.5个格子）
+    const extend = CELL_SIZE * 1.5
+    const x1 = firstX - unitDx * extend
+    const y1 = firstY - unitDy * extend
+    const x2 = lastX + unitDx * extend
+    const y2 = lastY + unitDy * extend
     
     return { x1, y1, x2, y2 }
   }
@@ -471,23 +491,16 @@ const GomokuGame = () => {
                 height={CELL_SIZE * BOARD_SIZE}
                 style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', zIndex: 3 }}
               >
-                <defs>
-                  <linearGradient id="winLineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FFD700" stopOpacity="0.9" />
-                    <stop offset="50%" stopColor="#FF6B6B" stopOpacity="0.9" />
-                    <stop offset="100%" stopColor="#4ECDC4" stopOpacity="0.9" />
-                  </linearGradient>
-                </defs>
                 <line
                   x1={linePath.x1}
                   y1={linePath.y1}
                   x2={linePath.x2}
                   y2={linePath.y2}
-                  stroke="url(#winLineGradient)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeDasharray="8,4"
-                  opacity="0.9"
+                  stroke="#FF0000"
+                  strokeWidth="6"
+                  strokeLinecap="square"
+                  opacity="1"
+                  filter="drop-shadow(2px 2px 0px #000000)"
                 />
               </svg>
             )}
