@@ -431,6 +431,12 @@ const GomokuGame = () => {
 
   return (
     <div className="gomoku-game">
+      {/* 背景装饰星星 */}
+      <div className="background-sparkles">
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div key={`sparkle-bg-${i}`} className={`sparkle-bg sparkle-bg-${i + 1}`}>✦</div>
+        ))}
+      </div>
       <div className="gomoku-container">
         <div className="game-header">
           <div className="header-buttons">
