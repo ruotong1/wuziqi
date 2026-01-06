@@ -462,9 +462,17 @@ const GomokuGame = () => {
 
         {/* 星星装饰 */}
         <div className="stars-decoration">
+          <div className="sparkle sparkle-1">✦</div>
+          <div className="sparkle sparkle-2">✦</div>
+          <div className="sparkle sparkle-3">✦</div>
+          <div className="sparkle sparkle-4">✦</div>
+          <div className="sparkle sparkle-5">✦</div>
           <div className="star star-left">★</div>
           <div className="star star-center">★</div>
           <div className="star star-right">★</div>
+          <div className="sparkle sparkle-6">✦</div>
+          <div className="sparkle sparkle-7">✦</div>
+          <div className="sparkle sparkle-8">✦</div>
         </div>
 
         <div className="board-container">

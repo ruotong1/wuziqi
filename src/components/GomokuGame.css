@@ -232,30 +232,131 @@
   margin: 10px 0;
   width: 100%;
   max-width: 450px;
+  position: relative;
+  height: 50px;
 }
 
 .star {
-  font-size: 1.5rem;
+  font-size: 2.2rem; /* 更大 */
   line-height: 1;
   user-select: none;
   font-weight: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
+  position: relative;
+  z-index: 2;
+  /* 磨砂玻璃效果 */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .star-left,
 .star-right {
   color: #DDA0DD; /* 淡紫色 */
-  text-shadow: 0 0 5px rgba(221, 160, 221, 0.5);
-  filter: drop-shadow(0 0 2px rgba(221, 160, 221, 0.3));
+  text-shadow: 
+    0 0 8px rgba(221, 160, 221, 0.6),
+    0 0 15px rgba(221, 160, 221, 0.4),
+    2px 2px 0px rgba(138, 43, 226, 0.3); /* 紫色轮廓 */
+  filter: drop-shadow(0 0 3px rgba(221, 160, 221, 0.4));
 }
 
 .star-center {
   color: #FFD700; /* 金色 */
-  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  text-shadow: 
+    0 0 8px rgba(255, 215, 0, 0.6),
+    0 0 15px rgba(255, 215, 0, 0.4),
+    2px 2px 0px rgba(255, 140, 0, 0.3); /* 粉色轮廓 */
   filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4));
+}
+
+/* 十字星星装饰 */
+.sparkle {
+  position: absolute;
+  font-size: 1rem;
+  line-height: 1;
+  user-select: none;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  animation: sparkleFloat 3s ease-in-out infinite;
+  z-index: 1;
+  /* 磨砂玻璃效果 */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sparkle-1 {
+  top: -10px;
+  left: 10%;
+  color: rgba(255, 182, 193, 0.9); /* 粉色 */
+  animation-delay: 0s;
+}
+
+.sparkle-2 {
+  top: 5px;
+  left: 20%;
+  color: rgba(255, 165, 0, 0.9); /* 橙色 */
+  animation-delay: 0.5s;
+}
+
+.sparkle-3 {
+  top: -5px;
+  left: 30%;
+  color: rgba(135, 206, 250, 0.9); /* 浅蓝色 */
+  animation-delay: 1s;
+}
+
+.sparkle-4 {
+  top: 10px;
+  left: 40%;
+  color: rgba(144, 238, 144, 0.9); /* 绿色 */
+  animation-delay: 1.5s;
+}
+
+.sparkle-5 {
+  top: -8px;
+  left: 50%;
+  color: rgba(221, 160, 221, 0.9); /* 淡紫色 */
+  animation-delay: 2s;
+}
+
+.sparkle-6 {
+  top: 8px;
+  right: 50%;
+  color: rgba(255, 192, 203, 0.9); /* 浅粉色 */
+  animation-delay: 0.3s;
+}
+
+.sparkle-7 {
+  top: -12px;
+  right: 30%;
+  color: rgba(255, 182, 193, 0.9); /* 粉色 */
+  animation-delay: 0.8s;
+}
+
+.sparkle-8 {
+  top: 3px;
+  right: 15%;
+  color: rgba(255, 255, 255, 0.9); /* 白色 */
+  animation-delay: 1.3s;
+}
+
+@keyframes sparkleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.1);
+    opacity: 1;
+  }
 }
 
 .board-container {
@@ -813,19 +914,25 @@
   width: 100%;
 }
 
-/* 底部按钮样式 - 匹配图二 */
+/* 底部按钮样式 - 磨砂玻璃效果 */
 .start-button,
 .settings-button {
   padding: 12px 30px;
   font-size: 1rem;
   font-weight: normal;
   color: #FFFFFF;
-  background: linear-gradient(180deg, #FFB6C1 0%, #FF9BB0 100%); /* 粉色渐变 */
-  border: 2px solid #FFFFFF; /* 白色边框 */
+  /* 磨砂玻璃效果 */
+  background: rgba(255, 182, 193, 0.3); /* 半透明粉色 */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.5); /* 半透明白色边框 */
   border-radius: 25px; /* 高度圆角，椭圆形 */
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* 阴影 */
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   flex: 1;
   margin: 0 8px;
@@ -841,19 +948,26 @@
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
   pointer-events: none;
+  border-radius: 25px 25px 0 0;
 }
 
 .start-button:hover,
 .settings-button:hover {
-  background: linear-gradient(180deg, #FFA0B0 0%, #FF8BA0 100%);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
+  background: rgba(255, 182, 193, 0.4);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
 .start-button:active,
 .settings-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
