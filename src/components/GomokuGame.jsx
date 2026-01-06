@@ -441,7 +441,7 @@ const GomokuGame = () => {
         <div className="game-header">
           <div className="header-buttons">
             <button className="ai-generate-button" onClick={handleReset}>
-              AI 生成
+              技能五子棋
             </button>
           </div>
         </div>
@@ -556,7 +556,7 @@ const GomokuGame = () => {
               开始
             </button>
             <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
-              设置
+              历史记录
             </button>
           </div>
         </div>
