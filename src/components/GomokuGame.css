@@ -390,6 +390,21 @@
   border: 2px solid #FFB6C1; /* 浅粉色边框 */
 }
 
+.stone.winning {
+  box-shadow: 0 0 15px #FFD700, 0 0 25px #FFD700, 0 0 35px #FFD700, inset 0 0 10px rgba(255, 215, 0, 0.3);
+  border: 2px solid #FFD700;
+  animation: goldenGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes goldenGlow {
+  0% {
+    box-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700, inset 0 0 8px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FFD700, inset 0 0 12px rgba(255, 215, 0, 0.5);
+  }
+}
+
 .intersection:has(.stone):hover .stone {
   transform: translate(-50%, -50%);
 }
@@ -798,32 +813,47 @@
   width: 100%;
 }
 
-/* 底部按钮样式 */
+/* 底部按钮样式 - 匹配图二 */
 .start-button,
 .settings-button {
   padding: 12px 30px;
   font-size: 1rem;
   font-weight: normal;
   color: #FFFFFF;
-  background: #FFB6C1; /* 浅粉色 */
-  border: none;
-  border-radius: 12px; /* 圆角 */
+  background: linear-gradient(180deg, #FFB6C1 0%, #FF9BB0 100%); /* 粉色渐变 */
+  border: 2px solid #FFFFFF; /* 白色边框 */
+  border-radius: 25px; /* 高度圆角，椭圆形 */
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* 阴影 */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   flex: 1;
   margin: 0 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-button::before,
+.settings-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .start-button:hover,
 .settings-button:hover {
-  background: #FFA0B0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(180deg, #FFA0B0 0%, #FF8BA0 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .start-button:active,
 .settings-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }

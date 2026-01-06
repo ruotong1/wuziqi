@@ -469,28 +469,6 @@ const GomokuGame = () => {
 
         <div className="board-container">
           <div className="gomoku-board">
-            {/* 获胜线 SVG */}
-            {gameOver && linePath && (
-              <svg 
-                className="winning-line"
-                width={CELL_SIZE * BOARD_SIZE}
-                height={CELL_SIZE * BOARD_SIZE}
-                style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', zIndex: 3 }}
-              >
-                <line
-                  x1={linePath.x1}
-                  y1={linePath.y1}
-                  x2={linePath.x2}
-                  y2={linePath.y2}
-                  stroke="#FF0000"
-                  strokeWidth="6"
-                  strokeLinecap="square"
-                  opacity="1"
-                  filter="drop-shadow(2px 2px 0px #000000)"
-                />
-              </svg>
-            )}
-            
             {board.map((row, rowIndex) => (
               <div key={rowIndex} className="board-row">
                 {row.map((cell, colIndex) => (
@@ -500,7 +478,7 @@ const GomokuGame = () => {
                     onClick={() => handleCellClick(rowIndex, colIndex)}
                   >
                     {cell !== EMPTY && (
-                      <div className={`stone ${cell === BLACK ? 'black' : 'white'}`}></div>
+                      <div className={`stone ${cell === BLACK ? 'black' : 'white'} ${gameOver && winningLine && winningLine.some(p => p.row === rowIndex && p.col === colIndex) ? 'winning' : ''}`}></div>
                     )}
                   </div>
                 ))}
