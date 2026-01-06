@@ -422,17 +422,21 @@
 
 .gomoku-board {
   display: inline-block;
-  background: #ECFCEE; /* 淡绿色 */
+  /* 磨砂玻璃效果 */
+  background: rgba(236, 252, 238, 0.6); /* 半透明淡绿色 */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 0;
   border-radius: 20px; /* 圆角 */
   box-shadow: 
     0 0 0 3px rgba(255, 182, 193, 0.3), /* 粉色边缘 */
     0 0 0 6px rgba(255, 182, 193, 0.15), /* 外层粉色边缘 */
     0 4px 15px rgba(0, 0, 0, 0.1), /* 阴影 */
-    inset 0 0 20px rgba(255, 182, 193, 0.1); /* 内阴影 */
+    inset 0 1px 0 rgba(255, 255, 255, 0.3), /* 内高光 */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05); /* 内阴影 */
   border: 2px solid rgba(255, 182, 193, 0.4); /* 粉色边框 */
   position: relative;
-  width: calc(30px * 15);
+  width: calc(30px * 15); /* 15x15 正方形 */
   height: calc(30px * 15);
   overflow: hidden;
 }
