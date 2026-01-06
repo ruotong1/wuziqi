@@ -489,29 +489,7 @@
   display: block;
 }
 
-.intersection::before {
-  content: '';
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #654321;
-  border-radius: 0;
-  z-index: 1;
-  opacity: 0;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  image-rendering: pixelated;
-}
-
-.board-row:nth-child(4) .intersection:nth-child(4)::before,
-.board-row:nth-child(4) .intersection:nth-child(12)::before,
-.board-row:nth-child(12) .intersection:nth-child(4)::before,
-.board-row:nth-child(12) .intersection:nth-child(12)::before {
-  opacity: 0.6;
-  width: 4px;
-  height: 4px;
-}
+/* 移除星位点，只保留网格线 */
 
 .intersection:hover::before {
   display: none;
