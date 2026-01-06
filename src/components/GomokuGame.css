@@ -88,18 +88,7 @@
   overflow: hidden;
 }
 
-.gomoku-game::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.05) 10px, rgba(255,255,255,.05) 20px);
-  pointer-events: none;
-  z-index: 0;
-}
+/* 移除额外的背景层 */
 
 .gomoku-container {
   background: transparent;
@@ -116,17 +105,7 @@
   align-items: center;
 }
 
-.gomoku-container::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  background: #8B4513;
-  z-index: -1;
-  border-radius: 0;
-}
+/* 移除棕色边框 */
 
 .game-header {
   display: flex;
