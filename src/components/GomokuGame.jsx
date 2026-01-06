@@ -442,16 +442,14 @@ const GomokuGame = () => {
 
         <div className="game-info">
           {gameOver ? (
-            <div className="winner-message q-font-text">
+            <div className="winner-message">
               <h2>
                 {winner === playerColor ? '🎉 你获胜了！' : '😔 AI获胜！'}
               </h2>
             </div>
           ) : (
-            <div className="current-player q-font-text">
-              <div className={`player-indicator ${currentPlayer === BLACK ? 'black' : 'white'}`}>
-                {currentPlayer === BLACK ? '●' : '○'}
-              </div>
+            <div className="current-player">
+              <div className={`player-indicator-square ${currentPlayer === BLACK ? 'black' : 'white'}`}></div>
               <span>
                 {isPlayerTurn 
                   ? `你的回合 (${playerColor === BLACK ? '黑棋' : '白棋'})`
