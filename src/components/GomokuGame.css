@@ -102,15 +102,18 @@
 }
 
 .gomoku-container {
-  background: #8B7355; /* 中棕色面板 */
+  background: transparent;
   border: none;
-  border-radius: 20px; /* 圆角 */
-  padding: 25px;
+  border-radius: 0;
+  padding: 20px;
   max-width: 800px;
   width: 100%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .gomoku-container::before {
@@ -128,8 +131,10 @@
 .game-header {
   display: flex;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 15px;
+  width: 100%;
+  max-width: 450px;
 }
 
 .game-header h1 {
@@ -144,13 +149,13 @@
 
 /* 顶部AI生成按钮 */
 .ai-generate-button {
-  padding: 8px 16px;
-  font-size: 0.95rem;
+  padding: 10px 20px;
+  font-size: 1rem;
   font-weight: normal;
-  color: #D81B60; /* 深粉色/红色文字 */
+  color: #FFFFFF;
   background: #FFB6C1; /* 浅粉色 */
   border: none;
-  border-radius: 12px; /* 圆角 */
+  border-radius: 15px; /* 圆角 */
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -170,6 +175,8 @@
 .game-info {
   margin-bottom: 15px;
   text-align: left;
+  width: 100%;
+  max-width: 450px;
 }
 
 .current-player {
@@ -178,66 +185,50 @@
   gap: 10px;
   font-size: 1rem;
   font-weight: normal;
-  color: #333333; /* 深灰色文字 */
+  color: #333333;
   background: transparent;
-  padding: 10px 0;
+  padding: 0;
   border: none;
   border-radius: 0;
   box-shadow: none;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  margin-bottom: 15px;
-}
-
-.player-indicator-square {
-  width: 16px;
-  height: 16px;
-  background: #000000;
-  border: none;
-  border-radius: 0;
-  display: block;
-  flex-shrink: 0;
-}
-
-.player-indicator-square.white {
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
 }
 
 .player-indicator {
-  width: 30px;
-  height: 30px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 0;
   border-radius: 0;
-  border: 2px solid #000000;
-  image-rendering: pixelated;
+  border: none;
+  flex-shrink: 0;
 }
 
 .player-indicator.black {
-  color: #000000;
   background: #000000;
 }
 
 .player-indicator.white {
-  color: #000000;
   background: #FFFFFF;
-  border: 2px solid #000000;
+  border: 1px solid #CCCCCC;
 }
 
 .winner-message {
-  padding: 20px;
+  padding: 15px;
   background: #FFB6C1; /* 浅粉色 */
   border: none;
   border-radius: 15px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
+  width: 100%;
+  max-width: 450px;
 }
 
 .winner-message h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: #000000;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   text-shadow: none;
@@ -256,13 +247,15 @@
 .board-container {
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  margin: 15px 0;
   overflow-x: auto;
   padding: 0;
   background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
+  width: 100%;
+  max-width: 450px;
 }
 
 .gomoku-board {
@@ -708,8 +701,9 @@
 
 /* 底部栏和按钮 */
 .game-footer {
-  margin-top: 20px;
+  margin-top: 15px;
   width: 100%;
+  max-width: 450px;
 }
 
 .footer-bar {
@@ -718,7 +712,7 @@
   align-items: center;
   background: #90EE90; /* 浅绿色 */
   border-radius: 15px;
-  padding: 12px 18px;
+  padding: 15px 20px;
   margin-bottom: 15px;
 }
 
@@ -728,16 +722,14 @@
 }
 
 .piece-indicator {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: none;
-  display: block;
+  border: 2px solid #FFB6C1;
 }
 
 .piece-indicator.white {
   background: #FFFFFF;
-  border: 1px solid #E0E0E0;
 }
 
 .piece-indicator.black {
@@ -751,27 +743,39 @@
 }
 
 .footer-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #000000;
 }
 
 .footer-icon.plus {
   color: #87CEEB; /* 浅蓝色 */
   font-weight: bold;
-  font-size: 1.1rem;
 }
 
 .footer-icon.circle {
   border: 2px solid #000000;
   border-radius: 50%;
   background: transparent;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
+  position: relative;
+}
+
+.footer-icon.circle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border: 2px solid #000000;
+  border-radius: 50%;
 }
 
 .footer-buttons {
@@ -783,19 +787,19 @@
 /* 底部按钮样式 */
 .start-button,
 .settings-button {
-  padding: 12px 30px;
-  font-size: 1rem;
+  padding: 15px 40px;
+  font-size: 1.1rem;
   font-weight: normal;
-  color: #D81B60; /* 深粉色/红色文字 */
+  color: #FFFFFF;
   background: #FFB6C1; /* 浅粉色 */
   border: none;
-  border-radius: 12px; /* 圆角 */
+  border-radius: 15px; /* 圆角 */
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   flex: 1;
-  margin: 0 8px;
+  margin: 0 10px;
 }
 
 .start-button:hover,
