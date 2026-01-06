@@ -433,13 +433,9 @@ const GomokuGame = () => {
     <div className="gomoku-game">
       <div className="gomoku-container">
         <div className="game-header">
-          <h1 className="q-font-title">五子棋</h1>
           <div className="header-buttons">
-            <button className="reset-button q-font-button" onClick={handleReset}>
-              重新开始
-            </button>
-            <button className="history-button q-font-button" onClick={() => setShowHistory(!showHistory)}>
-              历史记录
+            <button className="ai-generate-button" onClick={handleReset}>
+              AI 生成
             </button>
           </div>
         </div>
@@ -543,6 +539,30 @@ const GomokuGame = () => {
             )}
           </div>
         )}
+
+        <div className="game-footer">
+          <div className="footer-bar">
+            <div className="piece-indicators">
+              <div className="piece-indicator white"></div>
+              <div className="piece-indicator white"></div>
+              <div className="piece-indicator black"></div>
+              <div className="piece-indicator black"></div>
+              <div className="piece-indicator black"></div>
+            </div>
+            <div className="footer-icons">
+              <div className="footer-icon plus">+</div>
+              <div className="footer-icon circle">○</div>
+            </div>
+          </div>
+          <div className="footer-buttons">
+            <button className="start-button" onClick={handleReset}>
+              开始
+            </button>
+            <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
+              设置
+            </button>
+          </div>
+        </div>
 
       </div>
     </div>
