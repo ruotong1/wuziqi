@@ -460,6 +460,13 @@ const GomokuGame = () => {
           )}
         </div>
 
+        {/* 星星装饰 */}
+        <div className="stars-decoration">
+          <div className="star star-left">★</div>
+          <div className="star star-center">★</div>
+          <div className="star star-right">★</div>
+        </div>
+
         <div className="board-container">
           <div className="gomoku-board">
             {/* 获胜线 SVG */}
