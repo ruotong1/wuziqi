@@ -444,8 +444,8 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.05); /* 内阴影 */
   border: 2px solid rgba(255, 182, 193, 0.4); /* 粉色边框 */
   position: relative;
-  width: calc(30px * 15); /* 15x15 正方形 */
-  height: calc(30px * 15);
+  width: calc(36px * 15); /* 15x15 正方形 */
+  height: calc(36px * 15);
   overflow: hidden;
 }
 
@@ -470,11 +470,11 @@
     repeating-linear-gradient(
       to bottom,
       transparent 0,
-      transparent 14.5px,
-      #8B4513 14.5px,
-      #8B4513 15.5px,
-      transparent 15.5px,
-      transparent 30px
+      transparent 17.5px,
+      #8B4513 17.5px,
+      #8B4513 18.5px,
+      transparent 18.5px,
+      transparent 36px
     );
   pointer-events: none;
   z-index: 0;
@@ -489,8 +489,8 @@
 }
 
 .intersection {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   cursor: pointer;
   position: relative;
   box-sizing: border-box;
@@ -508,8 +508,8 @@
 }
 
 .stone {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%; /* 圆形棋子 */
   position: absolute;
   top: 50%;
@@ -699,22 +699,28 @@
   text-shadow: none;
   flex: 0 0 auto;
   text-align: right;
+  background: linear-gradient(135deg, #DDA0DD 0%, #DA70D6 50%, #EE82EE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
 }
 
 .history-winner.player-win {
   background: none;
-  color: #8B4513;
-  font-weight: 600;
 }
 
 .history-winner.ai-win {
   background: none;
-  color: #8B4513;
-  font-weight: 600;
 }
 
 .history-date {
   flex: 1;
+  background: linear-gradient(135deg, #DDA0DD 0%, #DA70D6 50%, #EE82EE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
 }
 
 .history-item-header {
@@ -1421,5 +1427,86 @@
   50% {
     opacity: 0.6;
     transform: scale(1.2);
+  }
+}
+
+/* AI技能特效 */
+.ai-skill-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skill-vortex {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 215, 0, 0.4) 30%, transparent 70%);
+  animation: vortexSpin 1.5s linear infinite;
+  filter: blur(3px);
+}
+
+.skill-particles {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 69, 19, 0.6) 0%, rgba(139, 69, 19, 0.3) 40%, transparent 70%);
+  animation: particlesFloat 1.5s ease-in-out infinite;
+  filter: blur(2px);
+}
+
+.skill-text {
+  position: relative;
+  z-index: 10;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 
+    0 0 10px rgba(255, 215, 0, 1),
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 2px 5px rgba(0, 0, 0, 0.5);
+  animation: textPulse 1.5s ease-in-out infinite;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@keyframes vortexSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1.1);
+  }
+}
+
+@keyframes particlesFloat {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
   }
 }

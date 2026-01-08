@@ -5,7 +5,7 @@ const BOARD_SIZE = 15
 const EMPTY = 0
 const BLACK = 1
 const WHITE = 2
-const CELL_SIZE = 30 // 每个交叉点的大小
+const CELL_SIZE = 36 // 每个交叉点的大小（增大以方便点击）
 
 const GomokuGame = () => {
   const [board, setBoard] = useState(() => 
@@ -40,6 +40,7 @@ const GomokuGame = () => {
     remainingMoves: 0, // 万箭齐发：剩余可下棋子数
   })
   const [skillFirstTarget, setSkillFirstTarget] = useState(null) // 技能目标选择状态（用于斗转星移的两步选择）
+  const [aiSkillEffect, setAiSkillEffect] = useState(null) // AI技能特效：{ skillName, position }
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
   const playerColorRef = useRef(playerColor)
@@ -328,7 +329,26 @@ const GomokuGame = () => {
     if (availableSkills.length === 0) return false
 
     // 随机选择一个技能
-    const selectedSkillId = availableSkills[Math.floor(Math.random() * availableSkills.length)].id
+    const selectedSkill = availableSkills[Math.floor(Math.random() * availableSkills.length)]
+    const selectedSkillId = selectedSkill.id
+
+    // 找到中心位置或最后一个棋子位置用于特效显示
+    let effectPosition = { row: Math.floor(BOARD_SIZE / 2), col: Math.floor(BOARD_SIZE / 2) }
+    const aiPieces = []
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (board[row][col] === aiColor) {
+          aiPieces.push({ row, col })
+        }
+      }
+    }
+    if (aiPieces.length > 0) {
+      effectPosition = aiPieces[aiPieces.length - 1] // 使用最后一个AI棋子位置
+    }
+
+    // 显示技能特效
+    setAiSkillEffect({ skillName: selectedSkill.name, position: effectPosition })
+    setTimeout(() => setAiSkillEffect(null), 2000) // 2秒后隐藏
 
     // 根据技能类型执行
     switch (selectedSkillId) {
@@ -343,13 +363,13 @@ const GomokuGame = () => {
         }
         if (playerPieces.length > 0) {
           const target = playerPieces[Math.floor(Math.random() * playerPieces.length)]
-          executeSkill(selectedSkillId, target.row, target.col)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
           return true
         }
         break
 
       case 'liangji': // 两极反转：直接执行
-        executeSkill(selectedSkillId)
+        setTimeout(() => executeSkill(selectedSkillId), 500)
         return true
 
       case 'wuzhong': // 无中生有：在有利位置放置
@@ -367,7 +387,7 @@ const GomokuGame = () => {
         if (emptySpots.length > 0) {
           emptySpots.sort((a, b) => b.score - a.score)
           const target = emptySpots[0]
-          executeSkill(selectedSkillId, target.row, target.col)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
           return true
         }
         break
@@ -383,21 +403,21 @@ const GomokuGame = () => {
         }
         if (playerPieces2.length > 0) {
           const target = playerPieces2[Math.floor(Math.random() * playerPieces2.length)]
-          executeSkill(selectedSkillId, target.row, target.col)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
           return true
         }
         break
 
       case 'liba': // 力拔山兮：直接执行
-        executeSkill(selectedSkillId)
+        setTimeout(() => executeSkill(selectedSkillId), 500)
         return true
 
       case 'lebu': // 乐不思蜀：直接执行
-        executeSkill(selectedSkillId)
+        setTimeout(() => executeSkill(selectedSkillId), 500)
         return true
 
       case 'wanjian': // 万箭齐发：直接执行
-        executeSkill(selectedSkillId)
+        setTimeout(() => executeSkill(selectedSkillId), 500)
         return true
 
       case 'yihua': // 移花接木：将玩家棋子变为AI
@@ -411,7 +431,7 @@ const GomokuGame = () => {
         }
         if (playerPieces3.length > 0) {
           const target = playerPieces3[Math.floor(Math.random() * playerPieces3.length)]
-          executeSkill(selectedSkillId, target.row, target.col)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
           return true
         }
         break
@@ -947,6 +967,14 @@ const GomokuGame = () => {
                     {cell !== EMPTY && (
                       <div className={`stone ${cell === BLACK ? 'black' : 'white'} ${gameOver && winningLine && winningLine.some(p => p.row === rowIndex && p.col === colIndex) ? 'winning' : ''}`}></div>
                     )}
+                    {/* AI技能特效 */}
+                    {aiSkillEffect && aiSkillEffect.position.row === rowIndex && aiSkillEffect.position.col === colIndex && (
+                      <div className="ai-skill-effect">
+                        <div className="skill-vortex"></div>
+                        <div className="skill-particles"></div>
+                        <div className="skill-text">ta使用了{aiSkillEffect.skillName}</div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1050,7 +1078,7 @@ const GomokuGame = () => {
                       <span className="history-item-radio">○</span>
                       <span className="history-date">{record.date}</span>
                       <span className={`history-winner ${record.winner === '玩家' ? 'player-win' : 'ai-win'}`}>
-                        {record.winner === '玩家' ? '胜公卖' : '胜分类'}
+                        {record.winner === '玩家' ? '胜利' : '失败'}
                       </span>
                     </div>
                   ))}
