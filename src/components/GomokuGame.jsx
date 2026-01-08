@@ -815,7 +815,7 @@ const GomokuGame = () => {
         </div>
 
         <div className="board-container">
-          <div className="gomoku-board">
+          <div className="gomoku-board" style={{ position: 'relative' }}>
             {board.map((row, rowIndex) => (
               <div key={rowIndex} className="board-row">
                 {row.map((cell, colIndex) => (
@@ -943,6 +943,32 @@ const GomokuGame = () => {
             </button>
           </div>
         </div>
+
+        {/* SVG获胜线 */}
+        {linePath && (
+          <svg
+            className="winning-line"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'none',
+              zIndex: 5
+            }}
+          >
+            <line
+              x1={linePath.x1}
+              y1={linePath.y1}
+              x2={linePath.x2}
+              y2={linePath.y2}
+              stroke="#FFD700"
+              strokeWidth="4"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
 
       </div>
     </div>
