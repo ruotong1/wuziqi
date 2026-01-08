@@ -1013,6 +1013,15 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
+.start-button.active {
+  background: rgba(255, 182, 193, 0.5);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 6px 20px rgba(255, 182, 193, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
 /* 技能面板 */
 .skill-panel {
   background: rgba(255, 255, 255, 0.95);
