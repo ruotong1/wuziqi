@@ -488,14 +488,14 @@ const GomokuGame = () => {
           }
           return newBoard
         })
-        // 同时交换玩家和AI的颜色，并立即更新currentPlayer
-        setPlayerColor(prev => {
-          const newColor = prev === BLACK ? WHITE : BLACK
-          // 使用函数形式更新，避免闭包问题
-          setTimeout(() => setCurrentPlayer(newColor), 0)
-          return newColor
-        })
+        // 同时交换玩家和AI的颜色
+        setPlayerColor(prev => prev === BLACK ? WHITE : BLACK)
         setAiColor(prev => prev === BLACK ? WHITE : BLACK)
+        // 延迟更新currentPlayer，避免在setState回调中调用另一个setState
+        const currentPlayerColor = playerColor === BLACK ? WHITE : BLACK
+        setTimeout(() => {
+          setCurrentPlayer(currentPlayerColor)
+        }, 0)
         break
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
