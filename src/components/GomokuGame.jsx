@@ -165,6 +165,112 @@ const GomokuGame = () => {
     return score
   }, [])
 
+  // AI使用技能
+  const aiUseSkill = useCallback(() => {
+    if (!skillMode || gameOver || usedSkills.length >= 12) return false
+
+    // AI有30%的概率使用技能
+    if (Math.random() > 0.3) return false
+
+    // 获取可用的技能（排除已使用的，除非是"为所欲为"）
+    const availableSkills = skills.filter(skill => !usedSkills.includes(skill.id) || skill.id === 'weiyu')
+    if (availableSkills.length === 0) return false
+
+    // 随机选择一个技能
+    const selectedSkillId = availableSkills[Math.floor(Math.random() * availableSkills.length)].id
+
+    // 根据技能类型执行
+    switch (selectedSkillId) {
+      case 'feisha': // 飞沙走石：移除玩家棋子
+        const playerPieces = []
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          for (let col = 0; col < BOARD_SIZE; col++) {
+            if (board[row][col] === playerColor) {
+              playerPieces.push({ row, col })
+            }
+          }
+        }
+        if (playerPieces.length > 0) {
+          const target = playerPieces[Math.floor(Math.random() * playerPieces.length)]
+          executeSkill(selectedSkillId, target.row, target.col)
+          return true
+        }
+        break
+
+      case 'liangji': // 两极反转：直接执行
+        executeSkill(selectedSkillId)
+        return true
+
+      case 'wuzhong': // 无中生有：在有利位置放置
+        const emptySpots = []
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          for (let col = 0; col < BOARD_SIZE; col++) {
+            if (board[row][col] === EMPTY) {
+              const score = evaluatePosition(board, row, col, aiColor)
+              if (score > 50) {
+                emptySpots.push({ row, col, score })
+              }
+            }
+          }
+        }
+        if (emptySpots.length > 0) {
+          emptySpots.sort((a, b) => b.score - a.score)
+          const target = emptySpots[0]
+          executeSkill(selectedSkillId, target.row, target.col)
+          return true
+        }
+        break
+
+      case 'tiaohu': // 调虎离山：移除玩家棋子
+        const playerPieces2 = []
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          for (let col = 0; col < BOARD_SIZE; col++) {
+            if (board[row][col] === playerColor) {
+              playerPieces2.push({ row, col })
+            }
+          }
+        }
+        if (playerPieces2.length > 0) {
+          const target = playerPieces2[Math.floor(Math.random() * playerPieces2.length)]
+          executeSkill(selectedSkillId, target.row, target.col)
+          return true
+        }
+        break
+
+      case 'liba': // 力拔山兮：直接执行
+        executeSkill(selectedSkillId)
+        return true
+
+      case 'lebu': // 乐不思蜀：直接执行
+        executeSkill(selectedSkillId)
+        return true
+
+      case 'wanjian': // 万箭齐发：直接执行
+        executeSkill(selectedSkillId)
+        return true
+
+      case 'yihua': // 移花接木：将玩家棋子变为AI
+        const playerPieces3 = []
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          for (let col = 0; col < BOARD_SIZE; col++) {
+            if (board[row][col] === playerColor) {
+              playerPieces3.push({ row, col })
+            }
+          }
+        }
+        if (playerPieces3.length > 0) {
+          const target = playerPieces3[Math.floor(Math.random() * playerPieces3.length)]
+          executeSkill(selectedSkillId, target.row, target.col)
+          return true
+        }
+        break
+
+      default:
+        break
+    }
+    return false
+  }, [skillMode, gameOver, usedSkills, board, playerColor, aiColor, executeSkill, evaluatePosition])
+
   // AI下棋
   const makeAiMove = useCallback(() => {
     const currentBoard = boardRef.current
@@ -179,6 +285,18 @@ const GomokuGame = () => {
       setCurrentPlayer(playerColor)
       setIsPlayerTurn(true)
       return
+    }
+
+    // 如果技能模式开启，AI可能先使用技能（30%概率）
+    if (skillMode && Math.random() < 0.3) {
+      const skillUsed = aiUseSkill()
+      if (skillUsed) {
+        // 技能使用后，延迟500ms再下棋
+        setTimeout(() => {
+          makeAiMove()
+        }, 500)
+        return
+      }
     }
 
     let bestMove = null
@@ -272,7 +390,7 @@ const GomokuGame = () => {
         return newBoard
       })
     }
-  }, [aiColor, playerColor, gameOver, checkWin, evaluatePosition, activeSkillEffects])
+  }, [aiColor, playerColor, gameOver, checkWin, evaluatePosition, activeSkillEffects, skillMode, aiUseSkill])
 
 
   // 初始化游戏，随机决定先手
@@ -943,31 +1061,6 @@ const GomokuGame = () => {
           </div>
         </div>
 
-        {/* SVG获胜线 */}
-        {linePath && (
-          <svg
-            className="winning-line"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-              zIndex: 5
-            }}
-          >
-            <line
-              x1={linePath.x1}
-              y1={linePath.y1}
-              x2={linePath.x2}
-              y2={linePath.y2}
-              stroke="#FFD700"
-              strokeWidth="4"
-              strokeLinecap="round"
-            />
-          </svg>
-        )}
 
       </div>
     </div>
