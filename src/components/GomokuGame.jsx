@@ -486,16 +486,15 @@ const GomokuGame = () => {
               }
             }
           }
-          // 同时交换玩家和AI的颜色，并更新currentPlayer
-          setPlayerColor(prev => {
-            const newPlayerColor = prev === BLACK ? WHITE : BLACK
-            // 更新currentPlayer以匹配新的playerColor
-            setCurrentPlayer(newPlayerColor)
-            return newPlayerColor
-          })
-          setAiColor(prev => prev === BLACK ? WHITE : BLACK)
           return newBoard
         })
+        // 同时交换玩家和AI的颜色，并更新currentPlayer
+        setPlayerColor(prev => {
+          const newPlayerColor = prev === BLACK ? WHITE : BLACK
+          setCurrentPlayer(newPlayerColor)
+          return newPlayerColor
+        })
+        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
         break
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
