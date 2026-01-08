@@ -38,6 +38,7 @@ const GomokuGame = () => {
     tripleMove: false, // 万箭齐发：本回合可下三子
     remainingMoves: 0, // 万箭齐发：剩余可下棋子数
   })
+  const [skillFirstTarget, setSkillFirstTarget] = useState(null) // 技能目标选择状态（用于斗转星移的两步选择）
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
 
@@ -320,120 +321,8 @@ const GomokuGame = () => {
     }
   }, [isPlayerTurn, gameOver, currentPlayer, aiColor, makeAiMove])
 
-  // 处理玩家点击棋盘
-  const handleCellClick = useCallback((row, col) => {
-    // 如果正在等待技能目标选择，优先处理技能目标
-    if (waitingForSkillTarget) {
-      handleSkillTargetClick(row, col)
-      return
-    }
-
-    // 检查乐不思蜀效果
-    if (activeSkillEffects.playerSkipTurn && isPlayerTurn) {
-      alert('哈哈哈哈哈！你中了乐不思蜀，本回合不能出棋！')
-      setActiveSkillEffects(prev => ({ ...prev, playerSkipTurn: false }))
-      setCurrentPlayer(aiColor)
-      setIsPlayerTurn(false)
-      return
-    }
-
-    if (gameOver || !isPlayerTurn || board[row][col] !== EMPTY || currentPlayer !== playerColor) {
-      return
-    }
-
-    setBoard(prevBoard => {
-      const newBoard = prevBoard.map(r => [...r])
-      newBoard[row][col] = playerColor
-      setLastMove({ row, col })
-      
-      // 检查玩家是否获胜
-      const winLine = checkWin(newBoard, row, col, playerColor)
-      
-      // 记录玩家的走子并检查是否获胜
-      setMoveHistory(prev => {
-        const newHistory = [...prev, {
-          row,
-          col,
-          player: '玩家',
-          color: playerColor,
-          moveNumber: prev.length + 1
-        }]
-        
-        if (winLine) {
-          // 保存游戏记录
-          const record = {
-            id: Date.now(),
-            date: new Date().toLocaleString('zh-CN'),
-            winner: '玩家',
-            totalMoves: newHistory.length,
-            moves: newHistory,
-            playerColor: playerColor === BLACK ? '黑棋' : '白棋',
-            aiColor: aiColor === BLACK ? '黑棋' : '白棋'
-          }
-          setGameHistory(prevHistory => [record, ...prevHistory].slice(0, 50))
-          setGameOver(true)
-          setWinner(playerColor)
-          setWinningLine(winLine)
-          setIsPlayerTurn(false)
-        } else {
-          // 处理万箭齐发效果
-          if (activeSkillEffects.tripleMove && activeSkillEffects.remainingMoves > 1) {
-            setActiveSkillEffects(prev => ({
-              ...prev,
-              remainingMoves: prev.remainingMoves - 1
-            }))
-            // 继续玩家回合
-            setCurrentPlayer(playerColor)
-            setIsPlayerTurn(true)
-          } else {
-            // 清除万箭齐发效果
-            if (activeSkillEffects.tripleMove) {
-              setActiveSkillEffects(prev => ({
-                ...prev,
-                tripleMove: false,
-                remainingMoves: 0
-              }))
-            }
-            // 切换到AI回合
-            setCurrentPlayer(aiColor)
-            setIsPlayerTurn(false)
-          }
-        }
-        
-        return newHistory
-      })
-
-      return newBoard
-    })
-  }, [gameOver, isPlayerTurn, board, playerColor, aiColor, checkWin, waitingForSkillTarget, handleSkillTargetClick, activeSkillEffects])
-
-  // 切换技能模式
-  const toggleSkillMode = useCallback(() => {
-    const newSkillMode = !skillMode
-    setSkillMode(newSkillMode)
-    setShowSkillPanel(newSkillMode)
-    if (!newSkillMode) {
-      setSelectedSkill(null)
-      setWaitingForSkillTarget(false)
-      setSkillTargetType(null)
-    }
-  }, [skillMode])
-
-  // 技能列表
-  const skills = [
-    { id: 'feisha', name: '飞沙走石', desc: '拿走对手任意一枚棋子' },
-    { id: 'liangji', name: '两极反转', desc: '双方棋子互换' },
-    { id: 'wuzhong', name: '无中生有', desc: '任意位置施放一枚棋子' },
-    { id: 'douzhuan', name: '斗转星移', desc: '将对手任意一枚棋子随意转移至棋盘上其他位置' },
-    { id: 'tiaohu', name: '调虎离山', desc: '移除对手一枚棋子' },
-    { id: 'liba', name: '力拔山兮', desc: '将对手棋盘上所有棋子清空' },
-    { id: 'lebu', name: '乐不思蜀', desc: '对手本回合不可出棋并原地哈哈大笑' },
-    { id: 'shumu', name: '鼠目寸光', desc: '对手本回合带鸟视镜投出一枚棋子' },
-    { id: 'wanjian', name: '万箭齐发', desc: '自己本回合可一次投出三枚棋子' },
-    { id: 'weiyu', name: '为所欲为', desc: '可指定一个技能施放（包括已使用过的技能）' },
-    { id: 'muxuan', name: '目眩神迷', desc: '对手原地转五圈后再投棋' },
-    { id: 'yihua', name: '移花接木', desc: '任意将对手一枚棋子变为己方' },
-  ]
+  // 技能目标选择状态（用于斗转星移的两步选择）
+  const [skillFirstTarget, setSkillFirstTarget] = useState(null)
 
   // 执行技能
   const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null) => {
@@ -567,6 +456,171 @@ const GomokuGame = () => {
     setSelectedSkill(null)
   }, [playerColor, aiColor])
 
+  // 处理技能目标选择
+  const handleSkillTargetClick = useCallback((row, col) => {
+    if (!waitingForSkillTarget || !selectedSkill) return
+
+    switch (selectedSkill) {
+      case 'feisha': // 飞沙走石：选择对手棋子
+        if (board[row][col] === aiColor) {
+          executeSkill(selectedSkill, row, col)
+        }
+        break
+
+      case 'wuzhong': // 无中生有：选择空位置
+        if (board[row][col] === EMPTY) {
+          executeSkill(selectedSkill, row, col)
+        }
+        break
+
+      case 'douzhuan': // 斗转星移：先选对手棋子，再选目标位置
+        if (!skillFirstTarget) {
+          if (board[row][col] === aiColor) {
+            setSkillFirstTarget({ row, col })
+          }
+        } else {
+          if (board[row][col] === EMPTY) {
+            executeSkill(selectedSkill, skillFirstTarget.row, skillFirstTarget.col, row, col)
+            setSkillFirstTarget(null)
+          }
+        }
+        break
+
+      case 'tiaohu': // 调虎离山：选择对手棋子
+        if (board[row][col] === aiColor) {
+          executeSkill(selectedSkill, row, col)
+        }
+        break
+
+      case 'yihua': // 移花接木：选择对手棋子
+        if (board[row][col] === aiColor) {
+          executeSkill(selectedSkill, row, col)
+        }
+        break
+
+      default:
+        break
+    }
+  }, [waitingForSkillTarget, selectedSkill, board, aiColor, executeSkill, skillFirstTarget])
+
+  // 处理玩家点击棋盘
+  const handleCellClick = useCallback((row, col) => {
+    // 如果正在等待技能目标选择，优先处理技能目标
+    if (waitingForSkillTarget) {
+      handleSkillTargetClick(row, col)
+      return
+    }
+
+    // 检查乐不思蜀效果
+    if (activeSkillEffects.playerSkipTurn && isPlayerTurn) {
+      alert('哈哈哈哈哈！你中了乐不思蜀，本回合不能出棋！')
+      setActiveSkillEffects(prev => ({ ...prev, playerSkipTurn: false }))
+      setCurrentPlayer(aiColor)
+      setIsPlayerTurn(false)
+      return
+    }
+
+    if (gameOver || !isPlayerTurn || board[row][col] !== EMPTY || currentPlayer !== playerColor) {
+      return
+    }
+
+    setBoard(prevBoard => {
+      const newBoard = prevBoard.map(r => [...r])
+      newBoard[row][col] = playerColor
+      setLastMove({ row, col })
+      
+      // 检查玩家是否获胜
+      const winLine = checkWin(newBoard, row, col, playerColor)
+      
+      // 记录玩家的走子并检查是否获胜
+      setMoveHistory(prev => {
+        const newHistory = [...prev, {
+          row,
+          col,
+          player: '玩家',
+          color: playerColor,
+          moveNumber: prev.length + 1
+        }]
+        
+        if (winLine) {
+          // 保存游戏记录
+          const record = {
+            id: Date.now(),
+            date: new Date().toLocaleString('zh-CN'),
+            winner: '玩家',
+            totalMoves: newHistory.length,
+            moves: newHistory,
+            playerColor: playerColor === BLACK ? '黑棋' : '白棋',
+            aiColor: aiColor === BLACK ? '黑棋' : '白棋'
+          }
+          setGameHistory(prevHistory => [record, ...prevHistory].slice(0, 50))
+          setGameOver(true)
+          setWinner(playerColor)
+          setWinningLine(winLine)
+          setIsPlayerTurn(false)
+        } else {
+          // 处理万箭齐发效果
+          if (activeSkillEffects.tripleMove && activeSkillEffects.remainingMoves > 1) {
+            setActiveSkillEffects(prev => ({
+              ...prev,
+              remainingMoves: prev.remainingMoves - 1
+            }))
+            // 继续玩家回合
+            setCurrentPlayer(playerColor)
+            setIsPlayerTurn(true)
+          } else {
+            // 清除万箭齐发效果
+            if (activeSkillEffects.tripleMove) {
+              setActiveSkillEffects(prev => ({
+                ...prev,
+                tripleMove: false,
+                remainingMoves: 0
+              }))
+            }
+            // 切换到AI回合
+            setCurrentPlayer(aiColor)
+            setIsPlayerTurn(false)
+          }
+        }
+        
+        return newHistory
+      })
+
+      return newBoard
+    })
+  }, [gameOver, isPlayerTurn, board, playerColor, aiColor, checkWin, waitingForSkillTarget, handleSkillTargetClick, activeSkillEffects])
+
+  }, [executeSkill])
+
+  // 切换技能模式
+  const toggleSkillMode = useCallback(() => {
+    const newSkillMode = !skillMode
+    setSkillMode(newSkillMode)
+    setShowSkillPanel(newSkillMode)
+    if (!newSkillMode) {
+      setSelectedSkill(null)
+      setWaitingForSkillTarget(false)
+      setSkillTargetType(null)
+      setSkillFirstTarget(null)
+    }
+  }, [skillMode])
+
+  // 技能列表
+  const skills = [
+    { id: 'feisha', name: '飞沙走石', desc: '拿走对手任意一枚棋子' },
+    { id: 'liangji', name: '两极反转', desc: '双方棋子互换' },
+    { id: 'wuzhong', name: '无中生有', desc: '任意位置施放一枚棋子' },
+    { id: 'douzhuan', name: '斗转星移', desc: '将对手任意一枚棋子随意转移至棋盘上其他位置' },
+    { id: 'tiaohu', name: '调虎离山', desc: '移除对手一枚棋子' },
+    { id: 'liba', name: '力拔山兮', desc: '将对手棋盘上所有棋子清空' },
+    { id: 'lebu', name: '乐不思蜀', desc: '对手本回合不可出棋并原地哈哈大笑' },
+    { id: 'shumu', name: '鼠目寸光', desc: '对手本回合带鸟视镜投出一枚棋子' },
+    { id: 'wanjian', name: '万箭齐发', desc: '自己本回合可一次投出三枚棋子' },
+    { id: 'weiyu', name: '为所欲为', desc: '可指定一个技能施放（包括已使用过的技能）' },
+    { id: 'muxuan', name: '目眩神迷', desc: '对手原地转五圈后再投棋' },
+    { id: 'yihua', name: '移花接木', desc: '任意将对手一枚棋子变为己方' },
+  ]
+
   // 选择技能
   const handleSelectSkill = useCallback((skillId) => {
     setSelectedSkill(skillId)
@@ -620,9 +674,6 @@ const GomokuGame = () => {
         break
     }
   }, [executeSkill])
-
-  // 技能目标选择状态（用于斗转星移的两步选择）
-  const [skillFirstTarget, setSkillFirstTarget] = useState(null)
 
   // 处理技能目标选择
   const handleSkillTargetClick = useCallback((row, col) => {
