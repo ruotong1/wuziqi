@@ -321,9 +321,6 @@ const GomokuGame = () => {
     }
   }, [isPlayerTurn, gameOver, currentPlayer, aiColor, makeAiMove])
 
-  // 技能目标选择状态（用于斗转星移的两步选择）
-  const [skillFirstTarget, setSkillFirstTarget] = useState(null)
-
   // 执行技能
   const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null) => {
     setWaitingForSkillTarget(false)
@@ -589,8 +586,6 @@ const GomokuGame = () => {
       return newBoard
     })
   }, [gameOver, isPlayerTurn, board, playerColor, aiColor, checkWin, waitingForSkillTarget, handleSkillTargetClick, activeSkillEffects])
-
-  }, [executeSkill])
 
   // 切换技能模式
   const toggleSkillMode = useCallback(() => {
