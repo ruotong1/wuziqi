@@ -488,12 +488,9 @@ const GomokuGame = () => {
           }
           return newBoard
         })
-        // 同时交换玩家和AI的颜色，并更新currentPlayer
-        setPlayerColor(prev => {
-          const newPlayerColor = prev === BLACK ? WHITE : BLACK
-          setCurrentPlayer(newPlayerColor)
-          return newPlayerColor
-        })
+        // 同时交换玩家和AI的颜色
+        // currentPlayer会在useEffect中自动同步更新
+        setPlayerColor(prev => prev === BLACK ? WHITE : BLACK)
         setAiColor(prev => prev === BLACK ? WHITE : BLACK)
         break
 
