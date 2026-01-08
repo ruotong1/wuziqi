@@ -14,6 +14,7 @@ const GomokuGame = () => {
   const [currentPlayer, setCurrentPlayer] = useState(BLACK)
   const [gameOver, setGameOver] = useState(false)
   const [winner, setWinner] = useState(null)
+  const [showVictoryModal, setShowVictoryModal] = useState(false)
   const [lastMove, setLastMove] = useState(null)
   const [isPlayerTurn, setIsPlayerTurn] = useState(true)
   const [playerColor, setPlayerColor] = useState(BLACK)
@@ -528,6 +529,7 @@ const GomokuGame = () => {
             setGameOver(true)
             setWinner(aiColor)
             setWinningLine(winLine)
+            setShowVictoryModal(true)
             setIsPlayerTurn(false)
           } else {
             setCurrentPlayer(playerColor)
@@ -690,6 +692,7 @@ const GomokuGame = () => {
           setGameOver(true)
           setWinner(playerColor)
           setWinningLine(winLine)
+          setShowVictoryModal(true)
           setIsPlayerTurn(false)
         } else {
           // 处理万箭齐发效果
@@ -989,7 +992,39 @@ const GomokuGame = () => {
               setSkillTargetType(null)
               setSelectedSkill(null)
               setSkillFirstTarget(null)
-            }}>取消</button>
+            }}>✕</button>
+          </div>
+        )}
+
+        {/* 胜利弹窗 */}
+        {showVictoryModal && (
+          <div className="victory-modal-overlay">
+            <div className="victory-modal">
+              <div className="victory-modal-header">
+                <div className="victory-stars">
+                  <div className="victory-star">★</div>
+                  <div className="victory-star">★</div>
+                  <div className="victory-star victory-star-large">★</div>
+                  <div className="victory-star">★</div>
+                  <div className="victory-star">★</div>
+                </div>
+                <button className="victory-close" onClick={() => setShowVictoryModal(false)}>✕</button>
+              </div>
+              <div className="victory-modal-content">
+                <h2 className="victory-title">恭喜胜利!</h2>
+              </div>
+              <div className="victory-modal-buttons">
+                <button className="victory-button" onClick={handleReset}>
+                  再来一局
+                </button>
+                <button className="victory-button" onClick={() => {
+                  setShowVictoryModal(false)
+                  setShowHistory(true)
+                }}>
+                  查看历史
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1004,26 +1039,22 @@ const GomokuGame = () => {
               <div className="no-history q-font-text">暂无历史记录</div>
             ) : (
               <>
+                <div className="history-list-header">
+                  <span className="history-list-checkbox">☐</span>
+                  <span className="history-list-date">日期</span>
+                  <span className="history-list-winner">胜出局</span>
+                </div>
                 <div className="history-list">
                   {gameHistory.map((record) => (
                     <div key={record.id} className="history-item q-font-text">
-                      <div className="history-item-header">
-                        <span className="history-date">{record.date}</span>
-                        <span className={`history-winner ${record.winner === '玩家' ? 'player-win' : 'ai-win'}`}>
-                          {record.winner === '玩家' ? '🎉 玩家获胜' : '🤖 AI获胜'}
-                        </span>
-                      </div>
-                      <div className="history-item-details">
-                        <span>总步数: {record.totalMoves}</span>
-                        <span>玩家: {record.playerColor}</span>
-                        <span>AI: {record.aiColor}</span>
-                      </div>
+                      <span className="history-item-radio">○</span>
+                      <span className="history-date">{record.date}</span>
+                      <span className={`history-winner ${record.winner === '玩家' ? 'player-win' : 'ai-win'}`}>
+                        {record.winner === '玩家' ? '胜公卖' : '胜分类'}
+                      </span>
                     </div>
                   ))}
                 </div>
-                <button className="clear-history-button q-font-button" onClick={clearHistory}>
-                  清空历史
-                </button>
               </>
             )}
           </div>
@@ -1051,7 +1082,7 @@ const GomokuGame = () => {
               className={`start-button ${skillMode ? 'active' : ''}`} 
               onClick={toggleSkillMode}
             >
-              技能五子棋
+              技能
             </button>
             <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
               历史记录
