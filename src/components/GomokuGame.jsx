@@ -474,7 +474,7 @@ const GomokuGame = () => {
         }
         break
 
-      case 'liangji': { // 两极反转：双方棋子互换
+      case 'liangji': // 两极反转：双方棋子互换
         setBoard(prevBoard => {
           const newBoard = prevBoard.map(r => [...r])
           for (let row = 0; row < BOARD_SIZE; row++) {
@@ -488,16 +488,15 @@ const GomokuGame = () => {
           }
           return newBoard
         })
-        // 同时交换玩家和AI的颜色
-        const newPlayerColor = playerColor === BLACK ? WHITE : BLACK
-        setPlayerColor(newPlayerColor)
-        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
-        // 在下一个事件循环中更新currentPlayer，避免状态更新冲突
-        requestAnimationFrame(() => {
-          setCurrentPlayer(newPlayerColor)
+        // 同时交换玩家和AI的颜色，使用函数式更新避免闭包问题
+        setPlayerColor(prev => {
+          const newColor = prev === BLACK ? WHITE : BLACK
+          // 立即更新currentPlayer
+          setCurrentPlayer(newColor)
+          return newColor
         })
+        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
         break
-      }
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
         if (targetRow !== null && targetCol !== null) {
