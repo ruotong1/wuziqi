@@ -41,6 +41,7 @@ const GomokuGame = () => {
   const [skillFirstTarget, setSkillFirstTarget] = useState(null) // 技能目标选择状态（用于斗转星移的两步选择）
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
+  const playerColorRef = useRef(playerColor)
 
   // 保存历史记录到localStorage
   useEffect(() => {
@@ -180,6 +181,139 @@ const GomokuGame = () => {
     { id: 'muxuan', name: '目眩神迷', desc: '对手原地转五圈后再投棋' },
     { id: 'yihua', name: '移花接木', desc: '任意将对手一枚棋子变为己方' },
   ]
+
+  // 执行技能（必须在aiUseSkill之前定义）
+  const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null) => {
+    setWaitingForSkillTarget(false)
+    setSkillTargetType(null)
+    setUsedSkills(prev => [...prev, skillId])
+
+    switch (skillId) {
+      case 'feisha': // 飞沙走石：移除对手棋子
+        if (targetRow !== null && targetCol !== null) {
+          setBoard(prevBoard => {
+            const newBoard = prevBoard.map(r => [...r])
+            if (newBoard[targetRow][targetCol] === aiColor) {
+              newBoard[targetRow][targetCol] = EMPTY
+            }
+            return newBoard
+          })
+        }
+        break
+
+      case 'liangji': // 两极反转：双方棋子互换
+        setBoard(prevBoard => {
+          const newBoard = prevBoard.map(r => [...r])
+          for (let row = 0; row < BOARD_SIZE; row++) {
+            for (let col = 0; col < BOARD_SIZE; col++) {
+              if (newBoard[row][col] === BLACK) {
+                newBoard[row][col] = WHITE
+              } else if (newBoard[row][col] === WHITE) {
+                newBoard[row][col] = BLACK
+              }
+            }
+          }
+          return newBoard
+        })
+        // 同时交换玩家和AI的颜色
+        const newPlayerColor = playerColor === BLACK ? WHITE : BLACK
+        setPlayerColor(newPlayerColor)
+        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
+        // 使用flushSync或者简单的setState来更新currentPlayer
+        setCurrentPlayer(newPlayerColor)
+        break
+
+      case 'wuzhong': // 无中生有：在任意位置放置己方棋子
+        if (targetRow !== null && targetCol !== null) {
+          setBoard(prevBoard => {
+            const newBoard = prevBoard.map(r => [...r])
+            if (newBoard[targetRow][targetCol] === EMPTY) {
+              newBoard[targetRow][targetCol] = playerColor
+              return newBoard
+            }
+            return prevBoard
+          })
+        }
+        break
+
+      case 'douzhuan': // 斗转星移：移动对手棋子
+        if (targetRow !== null && targetCol !== null && targetRow2 !== null && targetCol2 !== null) {
+          setBoard(prevBoard => {
+            const newBoard = prevBoard.map(r => [...r])
+            if (newBoard[targetRow][targetCol] === aiColor && newBoard[targetRow2][targetCol2] === EMPTY) {
+              newBoard[targetRow2][targetCol2] = aiColor
+              newBoard[targetRow][targetCol] = EMPTY
+            }
+            return newBoard
+          })
+        }
+        break
+
+      case 'tiaohu': // 调虎离山：移除对手棋子
+        if (targetRow !== null && targetCol !== null) {
+          setBoard(prevBoard => {
+            const newBoard = prevBoard.map(r => [...r])
+            if (newBoard[targetRow][targetCol] === aiColor) {
+              newBoard[targetRow][targetCol] = EMPTY
+            }
+            return newBoard
+          })
+        }
+        break
+
+      case 'liba': // 力拔山兮：清除对手所有棋子
+        setBoard(prevBoard => {
+          const newBoard = prevBoard.map(r => [...r])
+          for (let row = 0; row < BOARD_SIZE; row++) {
+            for (let col = 0; col < BOARD_SIZE; col++) {
+              if (newBoard[row][col] === aiColor) {
+                newBoard[row][col] = EMPTY
+              }
+            }
+          }
+          return newBoard
+        })
+        break
+
+      case 'lebu': // 乐不思蜀：对手本回合不可出棋
+        setActiveSkillEffects(prev => ({
+          ...prev,
+          aiSkipTurn: true
+        }))
+        break
+
+      case 'shumu': // 鼠目寸光：标记（视觉效果，不影响逻辑）
+        break
+
+      case 'wanjian': // 万箭齐发：本回合可下三子
+        setActiveSkillEffects(prev => ({
+          ...prev,
+          tripleMove: true,
+          remainingMoves: 3
+        }))
+        break
+
+      case 'muxuan': // 目眩神迷：标记（视觉效果）
+        break
+
+      case 'yihua': // 移花接木：将对手棋子变为己方
+        if (targetRow !== null && targetCol !== null) {
+          setBoard(prevBoard => {
+            const newBoard = prevBoard.map(r => [...r])
+            if (newBoard[targetRow][targetCol] === aiColor) {
+              newBoard[targetRow][targetCol] = playerColor
+            }
+            return newBoard
+          })
+        }
+        break
+
+      default:
+        break
+    }
+
+    setSelectedSkill(null)
+  }, [playerColor, aiColor])
 
   // AI使用技能
   const aiUseSkill = useCallback(() => {
@@ -454,143 +588,6 @@ const GomokuGame = () => {
       return () => clearTimeout(timer)
     }
   }, [isPlayerTurn, gameOver, currentPlayer, aiColor, makeAiMove])
-
-  // 执行技能
-  const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null) => {
-    setWaitingForSkillTarget(false)
-    setSkillTargetType(null)
-    setUsedSkills(prev => [...prev, skillId])
-
-    switch (skillId) {
-      case 'feisha': // 飞沙走石：移除对手棋子
-        if (targetRow !== null && targetCol !== null) {
-          setBoard(prevBoard => {
-            const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor) {
-              newBoard[targetRow][targetCol] = EMPTY
-            }
-            return newBoard
-          })
-        }
-        break
-
-      case 'liangji': // 两极反转：双方棋子互换
-        setBoard(prevBoard => {
-          const newBoard = prevBoard.map(r => [...r])
-          for (let row = 0; row < BOARD_SIZE; row++) {
-            for (let col = 0; col < BOARD_SIZE; col++) {
-              if (newBoard[row][col] === BLACK) {
-                newBoard[row][col] = WHITE
-              } else if (newBoard[row][col] === WHITE) {
-                newBoard[row][col] = BLACK
-              }
-            }
-          }
-          return newBoard
-        })
-        // 同时交换玩家和AI的颜色，使用函数式更新避免闭包问题
-        setPlayerColor(prev => {
-          const newColor = prev === BLACK ? WHITE : BLACK
-          // 立即更新currentPlayer
-          setCurrentPlayer(newColor)
-          return newColor
-        })
-        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
-        break
-
-      case 'wuzhong': // 无中生有：在任意位置放置己方棋子
-        if (targetRow !== null && targetCol !== null) {
-          setBoard(prevBoard => {
-            const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === EMPTY) {
-              newBoard[targetRow][targetCol] = playerColor
-              return newBoard
-            }
-            return prevBoard
-          })
-        }
-        break
-
-      case 'douzhuan': // 斗转星移：移动对手棋子
-        if (targetRow !== null && targetCol !== null && targetRow2 !== null && targetCol2 !== null) {
-          setBoard(prevBoard => {
-            const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor && newBoard[targetRow2][targetCol2] === EMPTY) {
-              newBoard[targetRow2][targetCol2] = aiColor
-              newBoard[targetRow][targetCol] = EMPTY
-            }
-            return newBoard
-          })
-        }
-        break
-
-      case 'tiaohu': // 调虎离山：移除对手棋子
-        if (targetRow !== null && targetCol !== null) {
-          setBoard(prevBoard => {
-            const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor) {
-              newBoard[targetRow][targetCol] = EMPTY
-            }
-            return newBoard
-          })
-        }
-        break
-
-      case 'liba': // 力拔山兮：清除对手所有棋子
-        setBoard(prevBoard => {
-          const newBoard = prevBoard.map(r => [...r])
-          for (let row = 0; row < BOARD_SIZE; row++) {
-            for (let col = 0; col < BOARD_SIZE; col++) {
-              if (newBoard[row][col] === aiColor) {
-                newBoard[row][col] = EMPTY
-              }
-            }
-          }
-          return newBoard
-        })
-        break
-
-      case 'lebu': // 乐不思蜀：对手本回合不可出棋
-        setActiveSkillEffects(prev => ({
-          ...prev,
-          aiSkipTurn: true
-        }))
-        break
-
-      case 'shumu': // 鼠目寸光：标记（视觉效果，不影响逻辑）
-        // 这个技能主要是视觉标记，实际效果在AI下棋时体现
-        break
-
-      case 'wanjian': // 万箭齐发：本回合可下三子
-        setActiveSkillEffects(prev => ({
-          ...prev,
-          tripleMove: true,
-          remainingMoves: 3
-        }))
-        break
-
-      case 'muxuan': // 目眩神迷：标记（视觉效果）
-        // 这个技能主要是视觉标记，实际效果在AI下棋时体现
-        break
-
-      case 'yihua': // 移花接木：将对手棋子变为己方
-        if (targetRow !== null && targetCol !== null) {
-          setBoard(prevBoard => {
-            const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor) {
-              newBoard[targetRow][targetCol] = playerColor
-            }
-            return newBoard
-          })
-        }
-        break
-
-      default:
-        break
-    }
-
-    setSelectedSkill(null)
-  }, [playerColor, aiColor])
 
   // 处理技能目标选择
   const handleSkillTargetClick = useCallback((row, col) => {
