@@ -445,13 +445,6 @@ const GomokuGame = () => {
     }
   }, [])
 
-  // 当playerColor改变时，同步更新currentPlayer（用于两极反转）
-  useEffect(() => {
-    if (currentPlayer !== playerColor && !gameOver) {
-      setCurrentPlayer(playerColor)
-    }
-  }, [playerColor, gameOver]) // 不依赖currentPlayer，避免循环
-
   // 当轮到AI时自动下棋
   useEffect(() => {
     if (!isPlayerTurn && !gameOver && currentPlayer === aiColor) {
@@ -481,7 +474,7 @@ const GomokuGame = () => {
         }
         break
 
-      case 'liangji': // 两极反转：双方棋子互换
+      case 'liangji': { // 两极反转：双方棋子互换
         setBoard(prevBoard => {
           const newBoard = prevBoard.map(r => [...r])
           for (let row = 0; row < BOARD_SIZE; row++) {
@@ -496,10 +489,15 @@ const GomokuGame = () => {
           return newBoard
         })
         // 同时交换玩家和AI的颜色
-        // currentPlayer会在useEffect中自动同步
-        setPlayerColor(prev => prev === BLACK ? WHITE : BLACK)
+        const newPlayerColor = playerColor === BLACK ? WHITE : BLACK
+        setPlayerColor(newPlayerColor)
         setAiColor(prev => prev === BLACK ? WHITE : BLACK)
+        // 在下一个事件循环中更新currentPlayer，避免状态更新冲突
+        requestAnimationFrame(() => {
+          setCurrentPlayer(newPlayerColor)
+        })
         break
+      }
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
         if (targetRow !== null && targetCol !== null) {
