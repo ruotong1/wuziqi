@@ -165,6 +165,22 @@ const GomokuGame = () => {
     return score
   }, [])
 
+  // 技能列表
+  const skills = [
+    { id: 'feisha', name: '飞沙走石', desc: '拿走对手任意一枚棋子' },
+    { id: 'liangji', name: '两极反转', desc: '双方棋子互换' },
+    { id: 'wuzhong', name: '无中生有', desc: '任意位置施放一枚棋子' },
+    { id: 'douzhuan', name: '斗转星移', desc: '将对手任意一枚棋子随意转移至棋盘上其他位置' },
+    { id: 'tiaohu', name: '调虎离山', desc: '移除对手一枚棋子' },
+    { id: 'liba', name: '力拔山兮', desc: '将对手棋盘上所有棋子清空' },
+    { id: 'lebu', name: '乐不思蜀', desc: '对手本回合不可出棋并原地哈哈大笑' },
+    { id: 'shumu', name: '鼠目寸光', desc: '对手本回合带鸟视镜投出一枚棋子' },
+    { id: 'wanjian', name: '万箭齐发', desc: '自己本回合可一次投出三枚棋子' },
+    { id: 'weiyu', name: '为所欲为', desc: '可指定一个技能施放（包括已使用过的技能）' },
+    { id: 'muxuan', name: '目眩神迷', desc: '对手原地转五圈后再投棋' },
+    { id: 'yihua', name: '移花接木', desc: '任意将对手一枚棋子变为己方' },
+  ]
+
   // AI使用技能
   const aiUseSkill = useCallback(() => {
     if (!skillMode || gameOver || usedSkills.length >= 12) return false
@@ -269,7 +285,7 @@ const GomokuGame = () => {
         break
     }
     return false
-  }, [skillMode, gameOver, usedSkills, board, playerColor, aiColor, executeSkill, evaluatePosition])
+  }, [skillMode, gameOver, usedSkills, board, playerColor, aiColor, executeSkill, evaluatePosition, skills])
 
   // AI下棋
   const makeAiMove = useCallback(() => {
