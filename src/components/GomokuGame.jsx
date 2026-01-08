@@ -670,53 +670,6 @@ const GomokuGame = () => {
     }
   }, [executeSkill])
 
-  // 处理技能目标选择
-  const handleSkillTargetClick = useCallback((row, col) => {
-    if (!waitingForSkillTarget || !selectedSkill) return
-
-    switch (selectedSkill) {
-      case 'feisha': // 飞沙走石：选择对手棋子
-        if (board[row][col] === aiColor) {
-          executeSkill(selectedSkill, row, col)
-        }
-        break
-
-      case 'wuzhong': // 无中生有：选择空位置
-        if (board[row][col] === EMPTY) {
-          executeSkill(selectedSkill, row, col)
-        }
-        break
-
-      case 'douzhuan': // 斗转星移：先选对手棋子，再选目标位置
-        if (!skillFirstTarget) {
-          if (board[row][col] === aiColor) {
-            setSkillFirstTarget({ row, col })
-          }
-        } else {
-          if (board[row][col] === EMPTY) {
-            executeSkill(selectedSkill, skillFirstTarget.row, skillFirstTarget.col, row, col)
-            setSkillFirstTarget(null)
-          }
-        }
-        break
-
-      case 'tiaohu': // 调虎离山：选择对手棋子
-        if (board[row][col] === aiColor) {
-          executeSkill(selectedSkill, row, col)
-        }
-        break
-
-      case 'yihua': // 移花接木：选择对手棋子
-        if (board[row][col] === aiColor) {
-          executeSkill(selectedSkill, row, col)
-        }
-        break
-
-      default:
-        break
-    }
-  }, [waitingForSkillTarget, selectedSkill, board, aiColor, executeSkill, skillFirstTarget])
-
   // 重新开始游戏
   const handleReset = useCallback(() => {
     const newBoard = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
