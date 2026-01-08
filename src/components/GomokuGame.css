@@ -198,6 +198,14 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.ai-generate-button.active {
+  background: #FF69B4; /* 更亮的粉色 */
+  box-shadow: 
+    0 4px 15px rgba(255, 105, 180, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
 .game-info {
   margin-bottom: 15px;
   text-align: left;
@@ -1003,4 +1011,199 @@
   box-shadow: 
     0 2px 10px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 技能面板 */
+.skill-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 182, 193, 0.5);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 25px;
+  max-height: 500px;
+  overflow-y: auto;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  z-index: 100;
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(255, 182, 193, 0.3);
+}
+
+.skill-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333333;
+  font-weight: bold;
+}
+
+.close-skill {
+  background: rgba(255, 182, 193, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  font-size: 1.2rem;
+  color: #666666;
+  cursor: pointer;
+  padding: 5px 12px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.close-skill:hover {
+  background: rgba(255, 182, 193, 0.5);
+  transform: scale(1.1);
+}
+
+.skill-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.skill-button {
+  background: rgba(255, 182, 193, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.skill-button:hover:not(:disabled) {
+  background: rgba(255, 182, 193, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.skill-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(200, 200, 200, 0.2);
+}
+
+.skill-button.used {
+  position: relative;
+}
+
+.skill-button.used::after {
+  content: '已使用';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.skill-name {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 5px;
+}
+
+.skill-desc {
+  font-size: 0.85rem;
+  color: #666666;
+  line-height: 1.4;
+}
+
+/* 技能目标高亮 */
+.intersection.skill-target {
+  position: relative;
+  cursor: pointer;
+}
+
+.intersection.skill-target::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border: 3px solid #FF69B4;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 10px rgba(255, 105, 180, 0.6),
+    inset 0 0 10px rgba(255, 105, 180, 0.3);
+  animation: skillTargetPulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes skillTargetPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+/* 技能使用提示 */
+.skill-hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 182, 193, 0.5);
+  border-radius: 20px;
+  padding: 20px 30px;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.skill-hint > div {
+  font-size: 1.1rem;
+  color: #333333;
+  font-weight: bold;
+}
+
+.cancel-skill {
+  background: rgba(255, 182, 193, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 15px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666666;
+  font-size: 0.9rem;
+}
+
+.cancel-skill:hover {
+  background: rgba(255, 182, 193, 0.5);
+  transform: scale(1.05);
 }
