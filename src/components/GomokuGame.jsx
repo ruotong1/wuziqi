@@ -887,16 +887,6 @@ const GomokuGame = () => {
         ))}
       </div>
       <div className="gomoku-container">
-        <div className="game-header">
-          <div className="header-buttons">
-            <button 
-              className={`ai-generate-button ${skillMode ? 'active' : ''}`} 
-              onClick={toggleSkillMode}
-            >
-              技能五子棋
-            </button>
-          </div>
-        </div>
 
         <div className="game-info">
           {gameOver ? (
@@ -1056,6 +1046,12 @@ const GomokuGame = () => {
           <div className="footer-buttons">
             <button className="start-button" onClick={handleReset}>
               开始
+            </button>
+            <button 
+              className={`start-button ${skillMode ? 'active' : ''}`} 
+              onClick={toggleSkillMode}
+            >
+              技能五子棋
             </button>
             <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
               历史记录
