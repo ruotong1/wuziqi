@@ -445,6 +445,13 @@ const GomokuGame = () => {
     }
   }, [])
 
+  // 当playerColor改变时，同步更新currentPlayer（用于两极反转）
+  useEffect(() => {
+    if (currentPlayer !== playerColor && !gameOver) {
+      setCurrentPlayer(playerColor)
+    }
+  }, [playerColor, gameOver]) // 不依赖currentPlayer，避免循环
+
   // 当轮到AI时自动下棋
   useEffect(() => {
     if (!isPlayerTurn && !gameOver && currentPlayer === aiColor) {
@@ -489,13 +496,9 @@ const GomokuGame = () => {
           return newBoard
         })
         // 同时交换玩家和AI的颜色
+        // currentPlayer会在useEffect中自动同步
         setPlayerColor(prev => prev === BLACK ? WHITE : BLACK)
         setAiColor(prev => prev === BLACK ? WHITE : BLACK)
-        // 延迟更新currentPlayer，避免在setState回调中调用另一个setState
-        const currentPlayerColor = playerColor === BLACK ? WHITE : BLACK
-        setTimeout(() => {
-          setCurrentPlayer(currentPlayerColor)
-        }, 0)
         break
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
