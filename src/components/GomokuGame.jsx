@@ -211,7 +211,7 @@ const GomokuGame = () => {
       const skill = skills.find(s => s.id === skillId)
       if (skill) {
         setPlayerSkillEffect({ skillName: skill.name })
-        setTimeout(() => setPlayerSkillEffect(null), 3500) // 3.5秒后隐藏（确保动画完整播放）
+        setTimeout(() => setPlayerSkillEffect(null), 2000) // 2秒后隐藏
       }
     }
 
@@ -232,7 +232,6 @@ const GomokuGame = () => {
         break
 
       case 'liangji': // 两极反转：双方棋子互换
-        // 先交换棋盘上的棋子颜色
         setBoard(prevBoard => {
           const newBoard = prevBoard.map(r => [...r])
           for (let row = 0; row < BOARD_SIZE; row++) {
@@ -246,16 +245,12 @@ const GomokuGame = () => {
           }
           return newBoard
         })
-        // 然后交换玩家和AI的颜色
-        setPlayerColor(prev => {
-          const newColor = prev === BLACK ? WHITE : BLACK
-          // 使用setTimeout确保状态更新顺序
-          setTimeout(() => {
-            setAiColor(prevAi => prevAi === BLACK ? WHITE : BLACK)
-            setCurrentPlayer(newColor)
-          }, 0)
-          return newColor
-        })
+        // 同时交换玩家和AI的颜色
+        const newPlayerColor = playerColor === BLACK ? WHITE : BLACK
+        setPlayerColor(newPlayerColor)
+        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
+        // 使用flushSync或者简单的setState来更新currentPlayer
+        setCurrentPlayer(newPlayerColor)
         break
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
@@ -547,7 +542,7 @@ const GomokuGame = () => {
                     setWinningLine(winLine)
                     setIsPlayerTurn(false)
                     setAiUsingWanjian(false)
-                    setShowVictoryModal(true) // AI胜利时也显示弹窗（玩家失败）
+                    // AI胜利时不显示弹窗
                     return newHistory
                   }
                   
@@ -713,7 +708,7 @@ const GomokuGame = () => {
             setWinner(aiColor)
             setWinningLine(winLine)
             setIsPlayerTurn(false)
-            setShowVictoryModal(true) // AI胜利时也显示弹窗（玩家失败）
+            // AI胜利时不显示弹窗
           } else {
             setCurrentPlayer(playerColor)
             setIsPlayerTurn(true)
@@ -1131,7 +1126,7 @@ const GomokuGame = () => {
 
         <div className="board-container">
           <div className="gomoku-board" style={{ position: 'relative' }}>
-            {/* 玩家技能特效 - 显示在棋盘中央 */}
+            {/* 玩家技能特效 - 显示在棋盘中央 - 卡包打开动画 */}
             {playerSkillEffect && (
               <div className="player-skill-effect-overlay">
                 <div className="gacha-anim-container">
@@ -1155,12 +1150,14 @@ const GomokuGame = () => {
                     </div>
                   </div>
                   
-                  {/* 白色星星装饰 */}
+                  {/* 星星装饰 */}
                   <div className="gacha-star gacha-star-1">★</div>
                   <div className="gacha-star gacha-star-2">★</div>
                   <div className="gacha-star gacha-star-3">★</div>
                   <div className="gacha-star gacha-star-4">★</div>
                   <div className="gacha-star gacha-star-5">★</div>
+                  <div className="gacha-star gacha-star-6">★</div>
+                  <div className="gacha-star gacha-star-7">★</div>
                   
                   {/* 黄色月亮装饰 */}
                   <div className="gacha-moon">🌙</div>
@@ -1264,44 +1261,24 @@ const GomokuGame = () => {
           </div>
         )}
 
-        {/* 胜利/失败弹窗 */}
+        {/* 胜利弹窗 */}
         {showVictoryModal && (
           <div className="victory-modal-overlay">
             <div className="victory-modal">
-              {/* 背景散布的白色小五角星 */}
-              <div className="victory-bg-stars">
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-                <div className="victory-bg-star">★</div>
-              </div>
-              
-              {/* 标题区域 - 上方5颗白色星星 */}
-              <div className="victory-title-section">
-                <div className="victory-stars-top">
-                  <div className="victory-star-small">★</div>
-                  <div className="victory-star-small">★</div>
-                  <div className="victory-star-large">★</div>
-                  <div className="victory-star-small">★</div>
-                  <div className="victory-star-small">★</div>
+              <div className="victory-modal-header">
+                <div className="victory-stars">
+                  <div className="victory-star">★</div>
+                  <div className="victory-star">★</div>
+                  <div className="victory-star victory-star-large">★</div>
+                  <div className="victory-star">★</div>
+                  <div className="victory-star">★</div>
                 </div>
-                <h2 className="victory-title">
-                  {winner === playerColor ? '恭喜胜利！' : '嘤嘤嘤～失败了呢'}
-                </h2>
+                <button className="victory-close" onClick={() => setShowVictoryModal(false)}>✕</button>
               </div>
-              
-              {/* 右上角红色圆形关闭按钮 */}
-              <button className="victory-close" onClick={() => setShowVictoryModal(false)}>
-                <span>×</span>
-              </button>
-              
-              {/* 底部按钮区域 */}
+              <div className="victory-modal-content">
+                <h2 className="victory-title">恭喜胜利!</h2>
+                <p className="victory-subtitle">你成功击败了AI！</p>
+              </div>
               <div className="victory-modal-buttons">
                 <button className="victory-button" onClick={handleReset}>
                   再来一局
