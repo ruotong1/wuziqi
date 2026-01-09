@@ -42,6 +42,7 @@ const GomokuGame = () => {
   const [skillFirstTarget, setSkillFirstTarget] = useState(null) // 技能目标选择状态（用于斗转星移的两步选择）
   const [aiSkillEffect, setAiSkillEffect] = useState(null) // AI技能特效：{ skillName, position }
   const [playerSkillEffect, setPlayerSkillEffect] = useState(null) // 玩家技能特效：{ skillName }
+  const [aiUsingWanjian, setAiUsingWanjian] = useState(false) // AI正在使用万箭齐发
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
   const playerColorRef = useRef(playerColor)
@@ -465,11 +466,14 @@ const GomokuGame = () => {
 
       case 'wanjian': // 万箭齐发：AI连续下三个棋子
         executeSkill(selectedSkillId, null, null, null, null, false)
+        setAiUsingWanjian(true) // 标记AI正在使用万箭齐发
+        
         // AI使用万箭齐发后，需要连续下三个棋子
         // 使用递归函数让AI连续下三个棋子
         const makeAiTripleMoves = (moveCount = 0) => {
           if (moveCount >= 3) {
             // 三子下完，切换到玩家回合
+            setAiUsingWanjian(false)
             setCurrentPlayer(playerColor)
             setIsPlayerTurn(true)
             return
@@ -480,7 +484,10 @@ const GomokuGame = () => {
             // 使用函数式更新来获取最新的board状态
             setBoard(prevBoard => {
               // 检查游戏是否已结束
-              if (gameOver) return prevBoard
+              if (gameOver) {
+                setAiUsingWanjian(false)
+                return prevBoard
+              }
               
               const moves = []
               
@@ -534,6 +541,7 @@ const GomokuGame = () => {
                     setWinner(aiColor)
                     setWinningLine(winLine)
                     setIsPlayerTurn(false)
+                    setAiUsingWanjian(false)
                     // AI胜利时不显示弹窗
                     return newHistory
                   }
@@ -543,6 +551,7 @@ const GomokuGame = () => {
                     setTimeout(() => makeAiTripleMoves(moveCount + 1), 800)
                   } else {
                     // 三子下完，切换到玩家回合
+                    setAiUsingWanjian(false)
                     setCurrentPlayer(playerColor)
                     setIsPlayerTurn(true)
                   }
@@ -553,6 +562,7 @@ const GomokuGame = () => {
                 return newBoard
               } else {
                 // 没有可下的位置，切换到玩家回合
+                setAiUsingWanjian(false)
                 setCurrentPlayer(playerColor)
                 setIsPlayerTurn(true)
                 return prevBoard
@@ -585,7 +595,7 @@ const GomokuGame = () => {
         break
     }
     return false
-  }, [skillMode, gameOver, usedSkills, board, playerColor, aiColor, executeSkill, evaluatePosition, skills])
+  }, [skillMode, gameOver, usedSkills, board, playerColor, aiColor, executeSkill, evaluatePosition, skills, checkWin, setAiUsingWanjian])
 
   // AI下棋
   const makeAiMove = useCallback(() => {
@@ -609,9 +619,7 @@ const GomokuGame = () => {
       if (skillUsed) {
         // 如果AI使用了"万箭齐发"，aiUseSkill内部已经处理了下棋逻辑，不需要再调用makeAiMove
         // 其他技能使用后，延迟2000ms再下棋（等待技能特效显示完成）
-        // 检查是否使用了万箭齐发（通过检查usedSkills）
-        const lastUsedSkill = usedSkills[usedSkills.length - 1]
-        if (lastUsedSkill !== 'wanjian') {
+        if (!aiUsingWanjian) {
           setTimeout(() => {
             makeAiMove()
           }, 2000)
@@ -712,7 +720,7 @@ const GomokuGame = () => {
         return newBoard
       })
     }
-  }, [aiColor, playerColor, gameOver, checkWin, evaluatePosition, activeSkillEffects, skillMode, aiUseSkill])
+  }, [aiColor, playerColor, gameOver, checkWin, evaluatePosition, activeSkillEffects, skillMode, aiUseSkill, aiUsingWanjian])
 
 
   // 初始化游戏，随机决定先手
@@ -1002,6 +1010,7 @@ const GomokuGame = () => {
     setShowVictoryModal(false) // 关闭胜利弹窗
     setAiSkillEffect(null) // 清除AI技能特效
     setPlayerSkillEffect(null) // 清除玩家技能特效
+    setAiUsingWanjian(false) // 清除AI万箭齐发标记
     
     // 随机决定先手
     const randomFirst = Math.random() > 0.5 ? BLACK : WHITE
