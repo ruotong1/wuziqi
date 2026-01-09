@@ -1070,7 +1070,7 @@ const GomokuGame = () => {
                 <button
                   key={skill.id}
                   className={`skill-button ${usedSkills.includes(skill.id) && selectedSkill !== 'weiyu' ? 'used' : ''} ${selectedSkill === 'weiyu' ? 'weiyu-selected' : ''}`}
-                  onClick={() => handleSelectSkill(skill.id)}
+                  onClick={() => handleSelectSkill(skill.id, selectedSkill)}
                   disabled={gameOver || (usedSkills.includes(skill.id) && selectedSkill !== 'weiyu')}
                 >
                   <div className="skill-name">{skill.name}</div>
