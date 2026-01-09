@@ -189,7 +189,11 @@ const GomokuGame = () => {
   const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null, isPlayer = true) => {
     setWaitingForSkillTarget(false)
     setSkillTargetType(null)
-    setUsedSkills(prev => [...prev, skillId])
+    setUsedSkills(prev => {
+      // 避免重复添加
+      if (prev.includes(skillId)) return prev
+      return [...prev, skillId]
+    })
 
     // 如果是玩家使用的技能，显示特效
     if (isPlayer) {
@@ -373,13 +377,14 @@ const GomokuGame = () => {
         }
         if (playerPieces.length > 0) {
           const target = playerPieces[Math.floor(Math.random() * playerPieces.length)]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
+          // 立即执行技能，不延迟
+          executeSkill(selectedSkillId, target.row, target.col, null, null, false)
           return true
         }
         break
 
       case 'liangji': // 两极反转：直接执行
-        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
+        executeSkill(selectedSkillId, null, null, null, null, false)
         return true
 
       case 'wuzhong': // 无中生有：在有利位置放置
@@ -397,7 +402,7 @@ const GomokuGame = () => {
         if (emptySpots.length > 0) {
           emptySpots.sort((a, b) => b.score - a.score)
           const target = emptySpots[0]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
+          executeSkill(selectedSkillId, target.row, target.col, null, null, false)
           return true
         }
         break
@@ -413,21 +418,21 @@ const GomokuGame = () => {
         }
         if (playerPieces2.length > 0) {
           const target = playerPieces2[Math.floor(Math.random() * playerPieces2.length)]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
+          executeSkill(selectedSkillId, target.row, target.col, null, null, false)
           return true
         }
         break
 
       case 'liba': // 力拔山兮：直接执行
-        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
+        executeSkill(selectedSkillId, null, null, null, null, false)
         return true
 
       case 'lebu': // 乐不思蜀：直接执行
-        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
+        executeSkill(selectedSkillId, null, null, null, null, false)
         return true
 
       case 'wanjian': // 万箭齐发：直接执行
-        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
+        executeSkill(selectedSkillId, null, null, null, null, false)
         return true
 
       case 'yihua': // 移花接木：将玩家棋子变为AI
@@ -441,7 +446,7 @@ const GomokuGame = () => {
         }
         if (playerPieces3.length > 0) {
           const target = playerPieces3[Math.floor(Math.random() * playerPieces3.length)]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
+          executeSkill(selectedSkillId, target.row, target.col, null, null, false)
           return true
         }
         break
@@ -472,10 +477,10 @@ const GomokuGame = () => {
     if (skillMode && Math.random() < 0.3) {
       const skillUsed = aiUseSkill()
       if (skillUsed) {
-        // 技能使用后，延迟500ms再下棋
+        // 技能使用后，延迟2000ms再下棋（等待技能特效显示完成）
         setTimeout(() => {
           makeAiMove()
-        }, 500)
+        }, 2000)
         return
       }
     }
@@ -559,8 +564,8 @@ const GomokuGame = () => {
             setGameOver(true)
             setWinner(aiColor)
             setWinningLine(winLine)
-            setShowVictoryModal(true)
-            setIsPlayerTurn(false)
+            // 只有玩家胜利时才显示弹窗
+            // setIsPlayerTurn(false)
           } else {
             setCurrentPlayer(playerColor)
             setIsPlayerTurn(true)
@@ -758,16 +763,9 @@ const GomokuGame = () => {
 
   // 切换技能模式
   const toggleSkillMode = useCallback(() => {
-    const newSkillMode = !skillMode
-    setSkillMode(newSkillMode)
-    setShowSkillPanel(newSkillMode)
-    if (!newSkillMode) {
-      setSelectedSkill(null)
-      setWaitingForSkillTarget(false)
-      setSkillTargetType(null)
-      setSkillFirstTarget(null)
-    }
-  }, [skillMode])
+    // 直接打开技能面板，不切换skillMode状态
+    setShowSkillPanel(true)
+  }, [])
 
   // 选择技能
   const handleSelectSkill = useCallback((skillId) => {
@@ -1012,7 +1010,7 @@ const GomokuGame = () => {
         {showSkillPanel && (
           <div className="skill-panel">
             <div className="skill-header">
-              <h3>选择技能</h3>
+              <h3>技能库</h3>
               <button className="close-skill q-font-button" onClick={() => setShowSkillPanel(false)}>✕</button>
             </div>
             <div className="skill-list">
@@ -1027,6 +1025,11 @@ const GomokuGame = () => {
                   <div className="skill-desc">{skill.desc}</div>
                 </button>
               ))}
+            </div>
+            <div className="skill-panel-footer">
+              <button className="skill-return-button" onClick={() => setShowSkillPanel(false)}>
+                返回棋盘
+              </button>
             </div>
           </div>
         )}
@@ -1066,6 +1069,7 @@ const GomokuGame = () => {
               </div>
               <div className="victory-modal-content">
                 <h2 className="victory-title">恭喜胜利!</h2>
+                <p className="victory-subtitle">你成功击败了AI！</p>
               </div>
               <div className="victory-modal-buttons">
                 <button className="victory-button" onClick={handleReset}>
