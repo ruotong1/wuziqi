@@ -232,6 +232,7 @@ const GomokuGame = () => {
         break
 
       case 'liangji': // 两极反转：双方棋子互换
+        // 先交换棋盘上的棋子颜色
         setBoard(prevBoard => {
           const newBoard = prevBoard.map(r => [...r])
           for (let row = 0; row < BOARD_SIZE; row++) {
@@ -245,12 +246,16 @@ const GomokuGame = () => {
           }
           return newBoard
         })
-        // 同时交换玩家和AI的颜色
-        const newPlayerColor = playerColor === BLACK ? WHITE : BLACK
-        setPlayerColor(newPlayerColor)
-        setAiColor(prev => prev === BLACK ? WHITE : BLACK)
-        // 使用flushSync或者简单的setState来更新currentPlayer
-        setCurrentPlayer(newPlayerColor)
+        // 然后交换玩家和AI的颜色
+        setPlayerColor(prev => {
+          const newColor = prev === BLACK ? WHITE : BLACK
+          // 使用setTimeout确保状态更新顺序
+          setTimeout(() => {
+            setAiColor(prevAi => prevAi === BLACK ? WHITE : BLACK)
+            setCurrentPlayer(newColor)
+          }, 0)
+          return newColor
+        })
         break
 
       case 'wuzhong': // 无中生有：在任意位置放置己方棋子
@@ -1129,46 +1134,52 @@ const GomokuGame = () => {
             {/* 玩家技能特效 - 显示在棋盘中央 */}
             {playerSkillEffect && (
               <div className="player-skill-effect-overlay">
-                <div className="skill-card-pack-container">
-                  {/* 绿色草地基础 */}
-                  <div className="skill-grass-circle"></div>
+                <div className="gacha-anim-container">
+                  {/* 粉色背景 */}
+                  <div className="gacha-pink-bg"></div>
                   
-                  {/* 卡包/钱包 */}
-                  <div className="skill-wallet">
-                    <div className="skill-wallet-left"></div>
-                    <div className="skill-wallet-right"></div>
+                  {/* 圆形绿色草地 */}
+                  <div className="gacha-grass-circle"></div>
+                  
+                  {/* 紫色边框卡包 */}
+                  <div className="gacha-card-pack">
+                    <div className="gacha-pack-left"></div>
+                    <div className="gacha-pack-right"></div>
                   </div>
                   
-                  {/* 金色卡片 */}
-                  <div className="skill-golden-card">
-                    <div className="skill-card-front"></div>
-                    <div className="skill-card-back"></div>
+                  {/* 金色卡牌 */}
+                  <div className="gacha-golden-card">
+                    <div className="gacha-card-back"></div>
+                    <div className="gacha-card-front">
+                      <div className="gacha-card-character"></div>
+                    </div>
                   </div>
                   
-                  {/* 星星装饰 */}
-                  <div className="skill-star skill-star-1">★</div>
-                  <div className="skill-star skill-star-2">★</div>
-                  <div className="skill-star skill-star-3">★</div>
-                  <div className="skill-star skill-star-4">★</div>
-                  <div className="skill-star skill-star-5">★</div>
+                  {/* 白色星星装饰 */}
+                  <div className="gacha-star gacha-star-1">★</div>
+                  <div className="gacha-star gacha-star-2">★</div>
+                  <div className="gacha-star gacha-star-3">★</div>
+                  <div className="gacha-star gacha-star-4">★</div>
+                  <div className="gacha-star gacha-star-5">★</div>
                   
-                  {/* 月亮装饰 */}
-                  <div className="skill-moon">🌙</div>
+                  {/* 黄色月亮装饰 */}
+                  <div className="gacha-moon">🌙</div>
                   
-                  {/* 闪光粒子 */}
-                  <div className="skill-sparkles">
-                    <div className="sparkle-particle sparkle-1">✦</div>
-                    <div className="sparkle-particle sparkle-2">✦</div>
-                    <div className="sparkle-particle sparkle-3">✦</div>
-                    <div className="sparkle-particle sparkle-4">✦</div>
-                    <div className="sparkle-particle sparkle-5">✦</div>
-                    <div className="sparkle-particle sparkle-6">✦</div>
-                    <div className="sparkle-particle sparkle-7">✦</div>
-                    <div className="sparkle-particle sparkle-8">✦</div>
+                  {/* 淡紫色光晕效果 */}
+                  <div className="gacha-glow"></div>
+                  
+                  {/* 彩色光效 */}
+                  <div className="gacha-colorful-effects">
+                    <div className="gacha-effect-1"></div>
+                    <div className="gacha-effect-2"></div>
+                    <div className="gacha-effect-3"></div>
                   </div>
                   
-                  {/* 技能名字文字 - 最后出现 */}
-                  <div className="skill-name-final">{playerSkillEffect.skillName}</div>
+                  {/* SSR金色字样 */}
+                  <div className="gacha-ssr-text">SSR</div>
+                  
+                  {/* 技能名字 */}
+                  <div className="gacha-skill-name">{playerSkillEffect.skillName}</div>
                 </div>
               </div>
             )}

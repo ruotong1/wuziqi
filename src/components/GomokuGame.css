@@ -1564,7 +1564,7 @@
   white-space: nowrap;
 }
 
-/* 玩家技能特效 - 显示在棋盘中央 - 卡包打开动画 */
+/* 玩家技能特效 - 显示在棋盘中央 - 4帧卡包动画 */
 .player-skill-effect-overlay {
   position: absolute;
   top: 0;
@@ -1578,39 +1578,255 @@
   justify-content: center;
 }
 
-/* 卡包容器 */
-.skill-card-pack-container {
+/* 1:1比例的卡包容器 */
+.gacha-anim-container {
   position: relative;
-  width: 350px;
-  height: 350px;
+  width: 400px;
+  height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 绿色草地圆形基础 */
-.skill-grass-circle {
+/* 粉色背景 */
+.gacha-pink-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #FFE6EF 0%, #FFD6E5 50%, #FFE6EF 100%);
+  border-radius: 20px;
+  z-index: 1;
+}
+
+/* 圆形绿色草地 */
+.gacha-grass-circle {
   position: absolute;
   width: 320px;
   height: 320px;
   border-radius: 50%;
   background: radial-gradient(circle, #90EE90 0%, #7CFC00 50%, #6BCB6B 100%);
-  /* 草地纹理效果 */
   background-image: 
     radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
     radial-gradient(circle at 60% 50%, rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
-    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
     repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255, 255, 255, 0.05) 3px, rgba(255, 255, 255, 0.05) 6px);
-  background-size: 40px 40px, 35px 35px, 45px 45px, 30px 30px, 20px 20px;
   box-shadow: 
     0 10px 30px rgba(0, 0, 0, 0.2),
-    inset 0 5px 10px rgba(255, 255, 255, 0.2),
-    inset 0 -5px 10px rgba(0, 0, 0, 0.1);
-  animation: grassAppear 0.5s ease-out forwards;
+    inset 0 5px 10px rgba(255, 255, 255, 0.2);
+  z-index: 2;
+  animation: gachaGrassAppear 0.4s ease-out forwards;
   transform: scale(0);
-  z-index: 1;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 紫色边框卡包 - 第1帧：闭合状态 */
+.gacha-card-pack {
+  position: absolute;
+  width: 160px;
+  height: 100px;
+  z-index: 5;
+  transform-origin: center;
+  animation: gachaPackFrame1 0.6s ease-out 0.4s forwards, gachaPackFrame2 0.5s ease-out 1s forwards, gachaPackFrame3 0.5s ease-out 1.5s forwards;
+  transform: scale(0);
+}
+
+.gacha-pack-left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 100px;
+  background: linear-gradient(135deg, #E6E6FA 0%, #DDA0DD 100%);
+  border: 3px solid #9370DB; /* 紫色边框 */
+  border-radius: 10px 0 0 10px;
+  border-right: 1px solid #9370DB;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.25),
+    inset -3px 0 8px rgba(0, 0, 0, 0.15);
+  transform-origin: left center;
+  z-index: 6;
+}
+
+.gacha-pack-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 80px;
+  height: 100px;
+  background: linear-gradient(135deg, #F0E6FF 0%, #E6E6FA 100%);
+  border: 3px solid #9370DB; /* 紫色边框 */
+  border-radius: 0 10px 10px 0;
+  border-left: 1px solid #9370DB;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.25),
+    inset 3px 0 8px rgba(255, 255, 255, 0.4);
+  transform-origin: right center;
+  z-index: 6;
+}
+
+/* 金色卡牌 */
+.gacha-golden-card {
+  position: absolute;
+  width: 70px;
+  height: 100px;
+  z-index: 10;
+  transform-origin: center bottom;
+  animation: gachaCardFrame2 0.5s ease-out 1s forwards, gachaCardFrame3 0.5s ease-out 1.5s forwards, gachaCardFrame4 0.6s ease-out 2s forwards;
+  opacity: 0;
+}
+
+.gacha-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+  border-radius: 8px;
+  border: 3px solid rgba(139, 69, 19, 0.9);
+  z-index: 11;
+}
+
+.gacha-card-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+  border-radius: 8px;
+  border: 3px solid rgba(255, 215, 0, 0.9);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 215, 0, 0.6);
+  z-index: 12;
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  animation: gachaCardFlip 0.6s ease-out 2s forwards;
+}
+
+.gacha-card-character {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
+  animation: gachaCharacterAppear 0.5s ease-out 2.3s forwards;
+  opacity: 0;
+}
+
+/* 白色星星装饰 */
+.gacha-star {
+  position: absolute;
+  font-size: 1.5rem;
+  color: #FFFFFF;
+  line-height: 1;
+  z-index: 3;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  animation: gachaStarFrame1 0.4s ease-out 0.5s forwards, gachaStarFrame2 0.5s ease-out 1s forwards, gachaStarFrame3 0.5s ease-out 1.5s forwards, gachaStarFrame4 0.6s ease-out 2s forwards;
+  opacity: 0;
+}
+
+.gacha-star-1 { top: 12%; left: 18%; }
+.gacha-star-2 { top: 8%; right: 20%; }
+.gacha-star-3 { bottom: 15%; left: 15%; }
+.gacha-star-4 { bottom: 12%; right: 18%; }
+.gacha-star-5 { top: 50%; left: 5%; font-size: 1.2rem; }
+
+/* 黄色月亮装饰 */
+.gacha-moon {
+  position: absolute;
+  font-size: 2rem;
+  bottom: 10%;
+  right: 10%;
+  z-index: 3;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 0, 0.7));
+  animation: gachaMoonFrame1 0.4s ease-out 0.5s forwards, gachaMoonFrame2 0.5s ease-out 1s forwards, gachaMoonFrame3 0.5s ease-out 1.5s forwards, gachaMoonFrame4 0.6s ease-out 2s forwards;
+  opacity: 0;
+}
+
+/* 淡紫色光晕效果 - 第3帧出现 */
+.gacha-glow {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(221, 160, 221, 0.4) 0%, rgba(221, 160, 221, 0.2) 50%, transparent 100%);
+  z-index: 4;
+  animation: gachaGlowFrame3 0.5s ease-out 1.5s forwards, gachaGlowFrame4 0.6s ease-out 2s forwards;
+  opacity: 0;
+}
+
+/* 彩色光效 - 第4帧 */
+.gacha-colorful-effects {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 7;
+}
+
+.gacha-effect-1,
+.gacha-effect-2,
+.gacha-effect-3 {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  animation: gachaColorfulEffect 0.6s ease-out 2s forwards;
+  opacity: 0;
+}
+
+.gacha-effect-1 {
+  top: 10%;
+  left: 10%;
+  background: radial-gradient(circle, rgba(255, 105, 180, 0.6) 0%, transparent 70%);
+}
+
+.gacha-effect-2 {
+  top: 10%;
+  right: 10%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%);
+}
+
+.gacha-effect-3 {
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(138, 43, 226, 0.6) 0%, transparent 70%);
+}
+
+/* SSR金色字样 - 第4帧 */
+.gacha-ssr-text {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6),
+    3px 3px 0px rgba(0, 0, 0, 0.3);
+  z-index: 15;
+  animation: gachaSSRAppear 0.6s ease-out 2.2s forwards;
+  opacity: 0;
+  letter-spacing: 5px;
+}
+
+/* 技能名字 */
+.gacha-skill-name {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: #8B4513;
+  font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  z-index: 16;
+  animation: gachaSkillNameAppear 0.5s ease-out 2.5s forwards;
+  opacity: 0;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
 }
 
 /* 卡包/钱包 */
@@ -2218,5 +2434,306 @@
   100% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+}
+
+/* 4帧卡包动画关键帧 */
+@keyframes gachaGrassAppear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 第1帧：卡包闭合 */
+@keyframes gachaPackFrame1 {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 第2帧：卡包微微打开 */
+@keyframes gachaPackFrame2 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.gacha-pack-left {
+  animation: gachaPackLeftFrame1 0.6s ease-out 0.4s forwards, gachaPackLeftFrame2 0.5s ease-out 1s forwards, gachaPackLeftFrame3 0.5s ease-out 1.5s forwards;
+}
+
+.gacha-pack-right {
+  animation: gachaPackRightFrame1 0.6s ease-out 0.4s forwards, gachaPackRightFrame2 0.5s ease-out 1s forwards, gachaPackRightFrame3 0.5s ease-out 1.5s forwards;
+}
+
+@keyframes gachaPackLeftFrame1 {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+@keyframes gachaPackLeftFrame2 {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(-30deg); }
+}
+
+@keyframes gachaPackLeftFrame3 {
+  0% { transform: rotateY(-30deg); }
+  100% { transform: rotateY(-120deg); }
+}
+
+@keyframes gachaPackRightFrame1 {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+@keyframes gachaPackRightFrame2 {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(30deg); }
+}
+
+@keyframes gachaPackRightFrame3 {
+  0% { transform: rotateY(30deg); }
+  100% { transform: rotateY(120deg); }
+}
+
+/* 第2帧：金色卡牌露出一角 */
+@keyframes gachaCardFrame2 {
+  0% {
+    transform: translateY(20px) scale(0.3) rotateZ(-5deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(10px) scale(0.5) rotateZ(0deg);
+    opacity: 1;
+  }
+}
+
+/* 第3帧：卡牌向上弹出一半 */
+@keyframes gachaCardFrame3 {
+  0% {
+    transform: translateY(10px) scale(0.5) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(0.8) rotateZ(5deg);
+    opacity: 1;
+  }
+}
+
+/* 第4帧：卡牌完全展开 */
+@keyframes gachaCardFrame4 {
+  0% {
+    transform: translateY(-20px) scale(0.8) rotateZ(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px) scale(1) rotateZ(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes gachaCardFlip {
+  0% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes gachaCharacterAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 星星动画 - 4帧 */
+@keyframes gachaStarFrame1 {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+@keyframes gachaStarFrame2 {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1) rotate(380deg);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1));
+  }
+}
+
+@keyframes gachaStarFrame3 {
+  0% {
+    opacity: 1;
+    transform: scale(1.1) rotate(380deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2) rotate(400deg);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1));
+  }
+}
+
+@keyframes gachaStarFrame4 {
+  0% {
+    opacity: 1;
+    transform: scale(1.2) rotate(400deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3) rotate(420deg);
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2) rotate(440deg);
+    filter: drop-shadow(0 0 18px rgba(255, 255, 255, 1));
+  }
+}
+
+/* 月亮动画 - 4帧 */
+@keyframes gachaMoonFrame1 {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-20deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes gachaMoonFrame2 {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 0, 0.8));
+  }
+}
+
+@keyframes gachaMoonFrame3 {
+  0% {
+    opacity: 1;
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15) rotate(10deg);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 0, 0.9));
+  }
+}
+
+@keyframes gachaMoonFrame4 {
+  0% {
+    opacity: 1;
+    transform: scale(1.15) rotate(10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 0, 1));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15) rotate(20deg);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 0, 0.9));
+  }
+}
+
+/* 淡紫色光晕 - 第3、4帧 */
+@keyframes gachaGlowFrame3 {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+@keyframes gachaGlowFrame4 {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+/* 彩色光效 - 第4帧 */
+@keyframes gachaColorfulEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+/* SSR文字出现 */
+@keyframes gachaSSRAppear {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) rotate(0deg);
+  }
+}
+
+/* 技能名字出现 */
+@keyframes gachaSkillNameAppear {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 }
