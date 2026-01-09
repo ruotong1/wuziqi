@@ -325,13 +325,16 @@ const GomokuGame = () => {
         break
 
       case 'wanjian': // 万箭齐发：本回合可下三子
-        // 只有玩家使用才生效（AI不需要这个效果）
+        // 只有玩家使用才生效（AI使用时不设置tripleMove，因为AI是自动下棋的）
         if (isPlayer) {
           setActiveSkillEffects(prev => ({
             ...prev,
             tripleMove: true,
             remainingMoves: 3
           }))
+        } else {
+          // AI使用万箭齐发：AI连续下三个棋子（不设置tripleMove，直接在aiUseSkill中处理）
+          // 这里不需要做任何事，AI会在aiUseSkill中处理连续下棋
         }
         break
 
@@ -460,8 +463,106 @@ const GomokuGame = () => {
         executeSkill(selectedSkillId, null, null, null, null, false)
         return true
 
-      case 'wanjian': // 万箭齐发：直接执行
+      case 'wanjian': // 万箭齐发：AI连续下三个棋子
         executeSkill(selectedSkillId, null, null, null, null, false)
+        // AI使用万箭齐发后，需要连续下三个棋子
+        // 使用递归函数让AI连续下三个棋子
+        const makeAiTripleMoves = (moveCount = 0) => {
+          if (moveCount >= 3 || gameOver) {
+            // 三子下完或游戏结束，切换到玩家回合
+            if (!gameOver) {
+              setCurrentPlayer(playerColor)
+              setIsPlayerTurn(true)
+            }
+            return
+          }
+          
+          // 延迟一下再下棋，让特效显示
+          setTimeout(() => {
+            // 重新评估棋盘状态
+            const currentBoard = boardRef.current || board
+            const moves = []
+            
+            // 收集所有可能的下棋位置
+            for (let row = 0; row < BOARD_SIZE; row++) {
+              for (let col = 0; col < BOARD_SIZE; col++) {
+                if (currentBoard[row][col] === EMPTY) {
+                  const attackScore = evaluatePosition(currentBoard, row, col, aiColor)
+                  const defenseScore = evaluatePosition(currentBoard, row, col, playerColor)
+                  const totalScore = attackScore * 2 + defenseScore
+                  moves.push({ row, col, score: totalScore })
+                }
+              }
+            }
+            
+            if (moves.length > 0) {
+              moves.sort((a, b) => b.score - a.score)
+              const topScore = moves[0].score
+              const topMoves = moves.filter(m => m.score === topScore)
+              const bestMove = topMoves[Math.floor(Math.random() * topMoves.length)]
+              
+              setBoard(prevBoard => {
+                const newBoard = prevBoard.map(r => [...r])
+                newBoard[bestMove.row][bestMove.col] = aiColor
+                setLastMove({ row: bestMove.row, col: bestMove.col })
+                
+                // 检查AI是否获胜
+                const winLine = checkWin(newBoard, bestMove.row, bestMove.col, aiColor)
+                
+                setMoveHistory(prev => {
+                  const newHistory = [...prev, {
+                    row: bestMove.row,
+                    col: bestMove.col,
+                    player: 'AI',
+                    color: aiColor,
+                    moveNumber: prev.length + 1
+                  }]
+                  
+                  if (winLine) {
+                    // AI获胜，保存记录但不显示弹窗
+                    const record = {
+                      id: Date.now(),
+                      date: new Date().toLocaleString('zh-CN'),
+                      winner: 'AI',
+                      totalMoves: newHistory.length,
+                      moves: newHistory,
+                      playerColor: playerColor === BLACK ? '黑棋' : '白棋',
+                      aiColor: aiColor === BLACK ? '黑棋' : '白棋'
+                    }
+                    setGameHistory(prevHistory => [record, ...prevHistory].slice(0, 50))
+                    setGameOver(true)
+                    setWinner(aiColor)
+                    setWinningLine(winLine)
+                    // 不显示弹窗
+                    setIsPlayerTurn(false)
+                    return newHistory
+                  }
+                  return newHistory
+                })
+                
+                return newBoard
+              })
+              
+              // 如果AI获胜，不再继续下棋
+              if (checkWin(currentBoard.map((r, ri) => r.map((c, ci) => {
+                if (ri === bestMove.row && ci === bestMove.col) return aiColor
+                return c
+              })), bestMove.row, bestMove.col, aiColor)) {
+                return
+              }
+              
+              // 继续下下一个棋子
+              makeAiTripleMoves(moveCount + 1)
+            } else {
+              // 没有可下的位置，切换到玩家回合
+              setCurrentPlayer(playerColor)
+              setIsPlayerTurn(true)
+            }
+          }, 800) // 每次下棋间隔800ms
+        }
+        
+        // 开始连续下棋
+        makeAiTripleMoves()
         return true
 
       case 'yihua': // 移花接木：将玩家棋子变为AI
@@ -593,8 +694,8 @@ const GomokuGame = () => {
             setGameOver(true)
             setWinner(aiColor)
             setWinningLine(winLine)
-            // 只有玩家胜利时才显示弹窗
-            // setIsPlayerTurn(false)
+            setIsPlayerTurn(false)
+            // AI胜利时不显示弹窗
           } else {
             setCurrentPlayer(playerColor)
             setIsPlayerTurn(true)
