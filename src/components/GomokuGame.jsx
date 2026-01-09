@@ -1268,26 +1268,38 @@ const GomokuGame = () => {
         {showVictoryModal && (
           <div className="victory-modal-overlay">
             <div className="victory-modal">
-              {/* 顶部星星装饰 */}
-              <div className="victory-stars-top">
-                <div className="victory-star-small">★</div>
-                <div className="victory-star-small">★</div>
-                <div className="victory-star-large">★</div>
-                <div className="victory-star-small">★</div>
-                <div className="victory-star-small">★</div>
+              {/* 背景散布的白色小五角星 */}
+              <div className="victory-bg-stars">
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
+                <div className="victory-bg-star">★</div>
               </div>
               
-              {/* 右上角关闭按钮 */}
-              <button className="victory-close" onClick={() => setShowVictoryModal(false)}>
-                <span>×</span>
-              </button>
-              
-              {/* 弹窗内容 */}
-              <div className="victory-modal-content">
+              {/* 标题区域 - 上方5颗白色星星 */}
+              <div className="victory-title-section">
+                <div className="victory-stars-top">
+                  <div className="victory-star-small">★</div>
+                  <div className="victory-star-small">★</div>
+                  <div className="victory-star-large">★</div>
+                  <div className="victory-star-small">★</div>
+                  <div className="victory-star-small">★</div>
+                </div>
                 <h2 className="victory-title">
                   {winner === playerColor ? '恭喜胜利！' : '嘤嘤嘤～失败了呢'}
                 </h2>
               </div>
+              
+              {/* 右上角红色圆形关闭按钮 */}
+              <button className="victory-close" onClick={() => setShowVictoryModal(false)}>
+                <span>×</span>
+              </button>
               
               {/* 底部按钮区域 */}
               <div className="victory-modal-buttons">

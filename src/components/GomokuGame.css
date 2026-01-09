@@ -1348,131 +1348,198 @@
   z-index: 2000;
 }
 
-/* 弹窗容器 - 浅粉色背景 */
+/* 弹窗容器 - 可爱卡通风，粉色渐变背景，金色发光描边 */
 .victory-modal {
-  background: #FFE6EF; /* 浅粉色背景 */
-  border: 3px solid rgba(255, 255, 255, 0.9); /* 白色边框 */
-  border-radius: 20px;
+  background: linear-gradient(180deg, #FFE6EF 0%, #FFB6C1 100%); /* 顶部浅粉、底部深粉 */
+  border: 4px solid transparent;
+  border-radius: 25px;
   padding: 0;
-  max-width: 420px;
+  max-width: 450px;
   width: 90%;
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.25),
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 215, 0, 0.6), /* 金色发光描边 */
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
   position: relative;
-  overflow: visible;
+  overflow: hidden;
+  /* 金色发光描边效果 */
+  background-clip: padding-box;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 0 4px rgba(255, 215, 0, 0.8),
+    0 0 20px rgba(255, 215, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* 顶部星星装饰 - 在弹窗顶部边缘 */
+/* 背景散布的白色小五角星 */
+.victory-bg-stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.victory-bg-star {
+  position: absolute;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1;
+  animation: victoryStarTwinkle 3s ease-in-out infinite;
+}
+
+.victory-bg-star:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+.victory-bg-star:nth-child(2) { top: 25%; right: 15%; animation-delay: 0.3s; }
+.victory-bg-star:nth-child(3) { top: 45%; left: 8%; animation-delay: 0.6s; }
+.victory-bg-star:nth-child(4) { top: 55%; right: 12%; animation-delay: 0.9s; }
+.victory-bg-star:nth-child(5) { top: 70%; left: 20%; animation-delay: 1.2s; }
+.victory-bg-star:nth-child(6) { top: 20%; left: 50%; animation-delay: 1.5s; }
+.victory-bg-star:nth-child(7) { top: 35%; right: 25%; animation-delay: 1.8s; }
+.victory-bg-star:nth-child(8) { top: 60%; left: 45%; animation-delay: 2.1s; }
+.victory-bg-star:nth-child(9) { top: 75%; right: 20%; animation-delay: 2.4s; }
+.victory-bg-star:nth-child(10) { top: 50%; right: 8%; animation-delay: 2.7s; }
+
+/* 标题区域 */
+.victory-title-section {
+  position: relative;
+  z-index: 2;
+  padding: 30px 30px 20px 30px;
+  text-align: center;
+}
+
+/* 顶部星星装饰 - 5颗白色星星（中间最大） */
 .victory-stars-top {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  padding: 15px 20px 10px 20px;
+  gap: 15px;
+  margin-bottom: 15px;
   position: relative;
-  background: transparent;
 }
 
-/* 小星星 - 两侧各2个 */
+/* 小星星 - 两侧各2个，带黄色高光 */
 .victory-star-small {
-  font-size: 1.2rem;
-  color: #FFFFFF; /* 白色实心星星 */
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  font-size: 1.5rem;
+  color: #FFFFFF; /* 白色星星 */
+  text-shadow: 
+    0 0 8px rgba(255, 255, 255, 0.9),
+    0 0 12px rgba(255, 255, 0, 0.6), /* 黄色高光 */
+    0 0 16px rgba(255, 255, 0, 0.4);
   line-height: 1;
   display: inline-block;
+  animation: victoryStarSparkle 2s ease-in-out infinite;
 }
 
-/* 大星星 - 中间1个 */
+.victory-star-small:nth-child(1) { animation-delay: 0s; }
+.victory-star-small:nth-child(2) { animation-delay: 0.2s; }
+.victory-star-small:nth-child(4) { animation-delay: 0.4s; }
+.victory-star-small:nth-child(5) { animation-delay: 0.6s; }
+
+/* 大星星 - 中间1个，带黄色高光 */
 .victory-star-large {
-  font-size: 2rem;
-  color: #FFFFFF; /* 白色实心星星 */
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+  font-size: 2.5rem;
+  color: #FFFFFF; /* 白色星星 */
+  text-shadow: 
+    0 0 10px rgba(255, 255, 255, 1),
+    0 0 15px rgba(255, 255, 0, 0.8), /* 黄色高光 */
+    0 0 20px rgba(255, 255, 0, 0.6);
   line-height: 1;
   display: inline-block;
+  animation: victoryStarSparkle 2s ease-in-out infinite;
+  animation-delay: 0.1s;
 }
 
-/* 右上角关闭按钮 - 粉色圆形，白色× */
+/* 标题文字 - 深红色粗楷体，白色描边 */
+.victory-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #8B0000; /* 深红色 */
+  margin: 0;
+  font-family: 'KaiTi', '楷体', 'STKaiti', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  line-height: 1.2;
+  text-shadow: 
+    -2px -2px 0 #FFFFFF, /* 白色描边 */
+    2px -2px 0 #FFFFFF,
+    -2px 2px 0 #FFFFFF,
+    2px 2px 0 #FFFFFF,
+    0 0 10px rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+}
+
+/* 右上角红色圆形关闭按钮（带白色"×"） */
 .victory-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #FFB6C1; /* 粉色背景 */
+  top: 15px;
+  right: 15px;
+  background: #DC143C; /* 红色背景 */
   border: none;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   z-index: 10;
 }
 
 .victory-close span {
   color: #FFFFFF; /* 白色×符号 */
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: bold;
   line-height: 1;
   display: inline-block;
 }
 
 .victory-close:hover {
-  background: #FF91A4; /* 稍深的粉色 */
+  background: #B22222; /* 稍深的红色 */
   transform: scale(1.1);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .victory-close:active {
   transform: scale(0.95);
 }
 
-/* 弹窗内容区域 */
-.victory-modal-content {
-  padding: 30px 30px 25px 30px;
-  text-align: center;
-}
-
-/* 标题文字 - 深棕/黑色，加粗，大字号 */
-.victory-title {
-  font-size: 2.8rem;
-  font-weight: bold;
-  color: #8B4513; /* 深棕色 */
-  margin: 0;
-  font-family: 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', Arial, sans-serif;
-  line-height: 1.2;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
 /* 底部按钮区域 */
 .victory-modal-buttons {
   display: flex;
   gap: 15px;
-  padding: 0 25px 25px 25px;
+  padding: 0 30px 30px 30px;
   justify-content: center;
+  position: relative;
+  z-index: 2;
 }
 
-/* 按钮样式 - 粉色，圆角，白色细边框，深棕/黑色文字 */
+/* 按钮样式 - 粉色圆角矩形，白色高光和内阴影，白色粗体文字 */
 .victory-button {
   flex: 1;
-  padding: 14px 20px;
-  background: #FFE6EF; /* 与弹窗背景一致的粉色 */
-  border: 2px solid rgba(255, 255, 255, 0.9); /* 白色细边框 */
-  border-radius: 20px; /* 圆角 */
-  color: #8B4513; /* 深棕/黑色文字 */
+  padding: 16px 24px;
+  background: linear-gradient(180deg, #FFB6C1 0%, #FF91A4 100%); /* 粉色渐变 */
+  border: none;
+  border-radius: 15px; /* 圆角矩形 */
+  color: #FFFFFF; /* 白色文字 */
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: bold; /* 粗体 */
   font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 2px 5px rgba(255, 255, 255, 0.4), /* 白色高光 */
+    inset 0 -2px 5px rgba(0, 0, 0, 0.2); /* 内阴影 */
   position: relative;
   overflow: hidden;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .victory-button::before {
@@ -1482,25 +1549,26 @@
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%); /* 白色高光 */
   pointer-events: none;
-  border-radius: 20px 20px 0 0;
+  border-radius: 15px 15px 0 0;
 }
 
 .victory-button:hover {
-  background: #FFD6E5; /* 稍浅的粉色 */
+  background: linear-gradient(180deg, #FF91A4 0%, #FF7F9F 100%);
   transform: translateY(-2px);
   box-shadow: 
-    0 5px 15px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  border-color: rgba(255, 255, 255, 1);
+    0 6px 20px rgba(0, 0, 0, 0.25),
+    inset 0 2px 6px rgba(255, 255, 255, 0.5),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .victory-button:active {
   transform: translateY(0);
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 3px 10px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes starTwinkle {
@@ -2735,5 +2803,28 @@
   100% {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 胜利弹窗动画 */
+@keyframes victoryStarTwinkle {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+@keyframes victoryStarSparkle {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 0, 0.6));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.9));
   }
 }
