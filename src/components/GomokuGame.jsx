@@ -189,11 +189,21 @@ const GomokuGame = () => {
   const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null, isPlayer = true) => {
     setWaitingForSkillTarget(false)
     setSkillTargetType(null)
-    setUsedSkills(prev => {
-      // 避免重复添加
-      if (prev.includes(skillId)) return prev
-      return [...prev, skillId]
-    })
+    
+    // 如果当前选中的是"为所欲为"，不标记技能为已使用（因为"为所欲为"已经用过了）
+    const isWeiyuSkill = selectedSkill === 'weiyu'
+    if (!isWeiyuSkill) {
+      setUsedSkills(prev => {
+        // 避免重复添加
+        if (prev.includes(skillId)) return prev
+        return [...prev, skillId]
+      })
+    }
+    
+    // 清除"为所欲为"的选中状态
+    if (isWeiyuSkill) {
+      setSelectedSkill(null)
+    }
 
     // 如果是玩家使用的技能，显示特效
     if (isPlayer) {
@@ -348,7 +358,7 @@ const GomokuGame = () => {
     }
 
     setSelectedSkill(null)
-  }, [playerColor, aiColor, skills])
+  }, [playerColor, aiColor, skills, selectedSkill])
 
   // AI使用技能
   const aiUseSkill = useCallback(() => {
@@ -782,14 +792,36 @@ const GomokuGame = () => {
 
   // 切换技能模式
   const toggleSkillMode = useCallback(() => {
+    // 如果游戏结束，不允许打开技能面板
+    if (gameOver) return
     // 直接打开技能面板，不切换skillMode状态
     setShowSkillPanel(true)
-  }, [])
+  }, [gameOver])
 
   // 选择技能
-  const handleSelectSkill = useCallback((skillId) => {
-    setSelectedSkill(skillId)
-    setShowSkillPanel(false)
+  const handleSelectSkill = useCallback((skillId, currentSelectedSkill = null) => {
+    // 如果游戏结束，不允许选择技能
+    if (gameOver) return
+    
+    // 使用传入的currentSelectedSkill或state中的selectedSkill
+    const currentSkill = currentSelectedSkill !== null ? currentSelectedSkill : selectedSkill
+    
+    // 如果当前选中的是"为所欲为"，且选择了其他技能，则执行该技能
+    if (currentSkill === 'weiyu' && skillId !== 'weiyu') {
+      // 使用"为所欲为"选择的技能，不标记为已使用
+      setSelectedSkill(skillId)
+      setShowSkillPanel(false)
+      // 继续执行技能逻辑
+    } else if (skillId === 'weiyu') {
+      // 为所欲为：重新打开技能面板，允许选择任何技能（包括已使用的）
+      setSelectedSkill('weiyu')
+      setShowSkillPanel(true)
+      return
+    } else {
+      // 正常选择技能
+      setSelectedSkill(skillId)
+      setShowSkillPanel(false)
+    }
 
     // 根据技能类型设置等待目标状态
     switch (skillId) {
@@ -828,10 +860,11 @@ const GomokuGame = () => {
       case 'wanjian': // 万箭齐发：直接执行
         executeSkill(skillId)
         break
-      case 'weiyu': // 为所欲为：重新打开技能面板
-        setShowSkillPanel(true)
-        setSelectedSkill(null)
-        break
+      // 为所欲为的逻辑在handleSelectSkill中处理，这里不需要
+      // case 'weiyu': // 为所欲为：重新打开技能面板
+      //   setShowSkillPanel(true)
+      //   setSelectedSkill(null)
+      //   break
       case 'muxuan': // 目眩神迷：直接执行（下一回合生效）
         executeSkill(skillId)
         break
@@ -1036,9 +1069,9 @@ const GomokuGame = () => {
               {skills.map((skill) => (
                 <button
                   key={skill.id}
-                  className={`skill-button ${usedSkills.includes(skill.id) && selectedSkill !== 'weiyu' ? 'used' : ''}`}
+                  className={`skill-button ${usedSkills.includes(skill.id) && selectedSkill !== 'weiyu' ? 'used' : ''} ${selectedSkill === 'weiyu' ? 'weiyu-selected' : ''}`}
                   onClick={() => handleSelectSkill(skill.id)}
-                  disabled={usedSkills.includes(skill.id) && selectedSkill !== 'weiyu'}
+                  disabled={gameOver || (usedSkills.includes(skill.id) && selectedSkill !== 'weiyu')}
                 >
                   <div className="skill-name">{skill.name}</div>
                   <div className="skill-desc">{skill.desc}</div>
@@ -1158,6 +1191,7 @@ const GomokuGame = () => {
             <button 
               className={`start-button ${skillMode ? 'active' : ''}`} 
               onClick={toggleSkillMode}
+              disabled={gameOver}
             >
               技能
             </button>
