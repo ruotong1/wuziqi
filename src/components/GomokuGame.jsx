@@ -468,40 +468,40 @@ const GomokuGame = () => {
         // AI使用万箭齐发后，需要连续下三个棋子
         // 使用递归函数让AI连续下三个棋子
         const makeAiTripleMoves = (moveCount = 0) => {
-          if (moveCount >= 3 || gameOver) {
-            // 三子下完或游戏结束，切换到玩家回合
-            if (!gameOver) {
-              setCurrentPlayer(playerColor)
-              setIsPlayerTurn(true)
-            }
+          if (moveCount >= 3) {
+            // 三子下完，切换到玩家回合
+            setCurrentPlayer(playerColor)
+            setIsPlayerTurn(true)
             return
           }
           
           // 延迟一下再下棋，让特效显示
           setTimeout(() => {
-            // 重新评估棋盘状态
-            const currentBoard = boardRef.current || board
-            const moves = []
-            
-            // 收集所有可能的下棋位置
-            for (let row = 0; row < BOARD_SIZE; row++) {
-              for (let col = 0; col < BOARD_SIZE; col++) {
-                if (currentBoard[row][col] === EMPTY) {
-                  const attackScore = evaluatePosition(currentBoard, row, col, aiColor)
-                  const defenseScore = evaluatePosition(currentBoard, row, col, playerColor)
-                  const totalScore = attackScore * 2 + defenseScore
-                  moves.push({ row, col, score: totalScore })
+            // 使用函数式更新来获取最新的board状态
+            setBoard(prevBoard => {
+              // 检查游戏是否已结束
+              if (gameOver) return prevBoard
+              
+              const moves = []
+              
+              // 收集所有可能的下棋位置
+              for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                  if (prevBoard[row][col] === EMPTY) {
+                    const attackScore = evaluatePosition(prevBoard, row, col, aiColor)
+                    const defenseScore = evaluatePosition(prevBoard, row, col, playerColor)
+                    const totalScore = attackScore * 2 + defenseScore
+                    moves.push({ row, col, score: totalScore })
+                  }
                 }
               }
-            }
-            
-            if (moves.length > 0) {
-              moves.sort((a, b) => b.score - a.score)
-              const topScore = moves[0].score
-              const topMoves = moves.filter(m => m.score === topScore)
-              const bestMove = topMoves[Math.floor(Math.random() * topMoves.length)]
               
-              setBoard(prevBoard => {
+              if (moves.length > 0) {
+                moves.sort((a, b) => b.score - a.score)
+                const topScore = moves[0].score
+                const topMoves = moves.filter(m => m.score === topScore)
+                const bestMove = topMoves[Math.floor(Math.random() * topMoves.length)]
+                
                 const newBoard = prevBoard.map(r => [...r])
                 newBoard[bestMove.row][bestMove.col] = aiColor
                 setLastMove({ row: bestMove.row, col: bestMove.col })
@@ -533,31 +533,31 @@ const GomokuGame = () => {
                     setGameOver(true)
                     setWinner(aiColor)
                     setWinningLine(winLine)
-                    // 不显示弹窗
                     setIsPlayerTurn(false)
+                    // AI胜利时不显示弹窗
                     return newHistory
                   }
+                  
+                  // 如果没有获胜，继续下下一个棋子
+                  if (moveCount + 1 < 3) {
+                    setTimeout(() => makeAiTripleMoves(moveCount + 1), 800)
+                  } else {
+                    // 三子下完，切换到玩家回合
+                    setCurrentPlayer(playerColor)
+                    setIsPlayerTurn(true)
+                  }
+                  
                   return newHistory
                 })
                 
                 return newBoard
-              })
-              
-              // 如果AI获胜，不再继续下棋
-              if (checkWin(currentBoard.map((r, ri) => r.map((c, ci) => {
-                if (ri === bestMove.row && ci === bestMove.col) return aiColor
-                return c
-              })), bestMove.row, bestMove.col, aiColor)) {
-                return
+              } else {
+                // 没有可下的位置，切换到玩家回合
+                setCurrentPlayer(playerColor)
+                setIsPlayerTurn(true)
+                return prevBoard
               }
-              
-              // 继续下下一个棋子
-              makeAiTripleMoves(moveCount + 1)
-            } else {
-              // 没有可下的位置，切换到玩家回合
-              setCurrentPlayer(playerColor)
-              setIsPlayerTurn(true)
-            }
+            })
           }, 800) // 每次下棋间隔800ms
         }
         
@@ -607,10 +607,15 @@ const GomokuGame = () => {
     if (skillMode && Math.random() < 0.3) {
       const skillUsed = aiUseSkill()
       if (skillUsed) {
-        // 技能使用后，延迟2000ms再下棋（等待技能特效显示完成）
-        setTimeout(() => {
-          makeAiMove()
-        }, 2000)
+        // 如果AI使用了"万箭齐发"，aiUseSkill内部已经处理了下棋逻辑，不需要再调用makeAiMove
+        // 其他技能使用后，延迟2000ms再下棋（等待技能特效显示完成）
+        // 检查是否使用了万箭齐发（通过检查usedSkills）
+        const lastUsedSkill = usedSkills[usedSkills.length - 1]
+        if (lastUsedSkill !== 'wanjian') {
+          setTimeout(() => {
+            makeAiMove()
+          }, 2000)
+        }
         return
       }
     }
