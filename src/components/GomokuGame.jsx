@@ -965,8 +965,13 @@ const GomokuGame = () => {
             {playerSkillEffect && (
               <div className="player-skill-effect-overlay">
                 <div className="player-skill-effect-container">
+                  {/* 金色漩涡效果 */}
                   <div className="player-skill-vortex"></div>
+                  {/* 沙尘效果 */}
                   <div className="player-skill-dust"></div>
+                  {/* 中心黑色球体 */}
+                  <div className="player-skill-black-sphere"></div>
+                  {/* 技能名字文字 */}
                   <div className="player-skill-text">{playerSkillEffect.skillName}</div>
                 </div>
               </div>
