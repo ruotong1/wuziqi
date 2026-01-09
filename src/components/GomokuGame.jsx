@@ -1129,13 +1129,46 @@ const GomokuGame = () => {
             {/* 玩家技能特效 - 显示在棋盘中央 */}
             {playerSkillEffect && (
               <div className="player-skill-effect-overlay">
-                <div className={`player-skill-effect-container ${playerSkillEffect.skillName === '飞沙走石' ? 'feisha-effect' : ''}`}>
-                  {/* 金色漩涡效果 */}
-                  <div className="player-skill-vortex"></div>
-                  {/* 沙尘效果 */}
-                  <div className="player-skill-dust"></div>
-                  {/* 技能名字文字 */}
-                  <div className="player-skill-text">{playerSkillEffect.skillName}</div>
+                <div className="skill-card-pack-container">
+                  {/* 绿色草地基础 */}
+                  <div className="skill-grass-circle"></div>
+                  
+                  {/* 卡包/钱包 */}
+                  <div className="skill-wallet">
+                    <div className="skill-wallet-left"></div>
+                    <div className="skill-wallet-right"></div>
+                  </div>
+                  
+                  {/* 金色卡片 */}
+                  <div className="skill-golden-card">
+                    <div className="skill-card-front"></div>
+                    <div className="skill-card-back"></div>
+                  </div>
+                  
+                  {/* 星星装饰 */}
+                  <div className="skill-star skill-star-1">★</div>
+                  <div className="skill-star skill-star-2">★</div>
+                  <div className="skill-star skill-star-3">★</div>
+                  <div className="skill-star skill-star-4">★</div>
+                  <div className="skill-star skill-star-5">★</div>
+                  
+                  {/* 月亮装饰 */}
+                  <div className="skill-moon">🌙</div>
+                  
+                  {/* 闪光粒子 */}
+                  <div className="skill-sparkles">
+                    <div className="sparkle-particle sparkle-1">✦</div>
+                    <div className="sparkle-particle sparkle-2">✦</div>
+                    <div className="sparkle-particle sparkle-3">✦</div>
+                    <div className="sparkle-particle sparkle-4">✦</div>
+                    <div className="sparkle-particle sparkle-5">✦</div>
+                    <div className="sparkle-particle sparkle-6">✦</div>
+                    <div className="sparkle-particle sparkle-7">✦</div>
+                    <div className="sparkle-particle sparkle-8">✦</div>
+                  </div>
+                  
+                  {/* 技能名字文字 - 最后出现 */}
+                  <div className="skill-name-final">{playerSkillEffect.skillName}</div>
                 </div>
               </div>
             )}
