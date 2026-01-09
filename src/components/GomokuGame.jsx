@@ -41,6 +41,7 @@ const GomokuGame = () => {
   })
   const [skillFirstTarget, setSkillFirstTarget] = useState(null) // 技能目标选择状态（用于斗转星移的两步选择）
   const [aiSkillEffect, setAiSkillEffect] = useState(null) // AI技能特效：{ skillName, position }
+  const [playerSkillEffect, setPlayerSkillEffect] = useState(null) // 玩家技能特效：{ skillName }
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
   const playerColorRef = useRef(playerColor)
@@ -185,10 +186,19 @@ const GomokuGame = () => {
   ]
 
   // 执行技能（必须在aiUseSkill之前定义）
-  const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null) => {
+  const executeSkill = useCallback((skillId, targetRow = null, targetCol = null, targetRow2 = null, targetCol2 = null, isPlayer = true) => {
     setWaitingForSkillTarget(false)
     setSkillTargetType(null)
     setUsedSkills(prev => [...prev, skillId])
+
+    // 如果是玩家使用的技能，显示特效
+    if (isPlayer) {
+      const skill = skills.find(s => s.id === skillId)
+      if (skill) {
+        setPlayerSkillEffect({ skillName: skill.name })
+        setTimeout(() => setPlayerSkillEffect(null), 2000) // 2秒后隐藏
+      }
+    }
 
     switch (skillId) {
       case 'feisha': // 飞沙走石：移除对手棋子
@@ -315,7 +325,7 @@ const GomokuGame = () => {
     }
 
     setSelectedSkill(null)
-  }, [playerColor, aiColor])
+  }, [playerColor, aiColor, skills])
 
   // AI使用技能
   const aiUseSkill = useCallback(() => {
@@ -363,13 +373,13 @@ const GomokuGame = () => {
         }
         if (playerPieces.length > 0) {
           const target = playerPieces[Math.floor(Math.random() * playerPieces.length)]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
           return true
         }
         break
 
       case 'liangji': // 两极反转：直接执行
-        setTimeout(() => executeSkill(selectedSkillId), 500)
+        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
         return true
 
       case 'wuzhong': // 无中生有：在有利位置放置
@@ -387,7 +397,7 @@ const GomokuGame = () => {
         if (emptySpots.length > 0) {
           emptySpots.sort((a, b) => b.score - a.score)
           const target = emptySpots[0]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
           return true
         }
         break
@@ -403,21 +413,21 @@ const GomokuGame = () => {
         }
         if (playerPieces2.length > 0) {
           const target = playerPieces2[Math.floor(Math.random() * playerPieces2.length)]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
           return true
         }
         break
 
       case 'liba': // 力拔山兮：直接执行
-        setTimeout(() => executeSkill(selectedSkillId), 500)
+        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
         return true
 
       case 'lebu': // 乐不思蜀：直接执行
-        setTimeout(() => executeSkill(selectedSkillId), 500)
+        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
         return true
 
       case 'wanjian': // 万箭齐发：直接执行
-        setTimeout(() => executeSkill(selectedSkillId), 500)
+        setTimeout(() => executeSkill(selectedSkillId, null, null, null, null, false), 500)
         return true
 
       case 'yihua': // 移花接木：将玩家棋子变为AI
@@ -431,7 +441,7 @@ const GomokuGame = () => {
         }
         if (playerPieces3.length > 0) {
           const target = playerPieces3[Math.floor(Math.random() * playerPieces3.length)]
-          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col), 500)
+          setTimeout(() => executeSkill(selectedSkillId, target.row, target.col, null, null, false), 500)
           return true
         }
         break
@@ -833,6 +843,9 @@ const GomokuGame = () => {
       tripleMove: false,
       remainingMoves: 0,
     })
+    setShowVictoryModal(false) // 关闭胜利弹窗
+    setAiSkillEffect(null) // 清除AI技能特效
+    setPlayerSkillEffect(null) // 清除玩家技能特效
     
     // 随机决定先手
     const randomFirst = Math.random() > 0.5 ? BLACK : WHITE
@@ -931,6 +944,26 @@ const GomokuGame = () => {
           )}
         </div>
 
+        {/* 顶部装饰区域 */}
+        <div className="top-decoration">
+          {/* 彩色星星 - 空心/实心结合 */}
+          <div className="decoration-star decoration-star-purple-filled">★</div>
+          <div className="decoration-star decoration-star-yellow-outline">★</div>
+          <div className="decoration-star decoration-star-blue-filled">★</div>
+          <div className="decoration-star decoration-star-purple-outline">★</div>
+          <div className="decoration-star decoration-star-yellow-filled">★</div>
+          <div className="decoration-star decoration-star-blue-outline">★</div>
+          <div className="decoration-star decoration-star-purple-filled-small">★</div>
+          <div className="decoration-star decoration-star-yellow-outline-small">★</div>
+          <div className="decoration-star decoration-star-blue-filled-small">★</div>
+          
+          {/* 闪光线条 */}
+          <div className="shine-line shine-line-1"></div>
+          <div className="shine-line shine-line-2"></div>
+          <div className="shine-line shine-line-3"></div>
+          <div className="shine-line shine-line-4"></div>
+        </div>
+
         {/* 星星装饰 */}
         <div className="stars-decoration">
           <div className="sparkle sparkle-1">✦</div>
@@ -948,6 +981,16 @@ const GomokuGame = () => {
 
         <div className="board-container">
           <div className="gomoku-board" style={{ position: 'relative' }}>
+            {/* 玩家技能特效 - 显示在棋盘中央 */}
+            {playerSkillEffect && (
+              <div className="player-skill-effect-overlay">
+                <div className="player-skill-effect-container">
+                  <div className="player-skill-vortex"></div>
+                  <div className="player-skill-dust"></div>
+                  <div className="player-skill-text">{playerSkillEffect.skillName}</div>
+                </div>
+              </div>
+            )}
             {board.map((row, rowIndex) => (
               <div key={rowIndex} className="board-row">
                 {row.map((cell, colIndex) => (
