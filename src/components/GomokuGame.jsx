@@ -211,7 +211,7 @@ const GomokuGame = () => {
       const skill = skills.find(s => s.id === skillId)
       if (skill) {
         setPlayerSkillEffect({ skillName: skill.name })
-        setTimeout(() => setPlayerSkillEffect(null), 2000) // 2秒后隐藏
+        setTimeout(() => setPlayerSkillEffect(null), 3000) // 3秒后隐藏（延长显示时间，让用户看到完整动画）
       }
     }
 
