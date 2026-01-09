@@ -542,7 +542,7 @@ const GomokuGame = () => {
                     setWinningLine(winLine)
                     setIsPlayerTurn(false)
                     setAiUsingWanjian(false)
-                    // AI胜利时不显示弹窗
+                    setShowVictoryModal(true) // AI胜利时也显示弹窗（玩家失败）
                     return newHistory
                   }
                   
@@ -708,7 +708,7 @@ const GomokuGame = () => {
             setWinner(aiColor)
             setWinningLine(winLine)
             setIsPlayerTurn(false)
-            // AI胜利时不显示弹窗
+            setShowVictoryModal(true) // AI胜利时也显示弹窗（玩家失败）
           } else {
             setCurrentPlayer(playerColor)
             setIsPlayerTurn(true)
@@ -1253,24 +1253,32 @@ const GomokuGame = () => {
           </div>
         )}
 
-        {/* 胜利弹窗 */}
+        {/* 胜利/失败弹窗 */}
         {showVictoryModal && (
           <div className="victory-modal-overlay">
             <div className="victory-modal">
-              <div className="victory-modal-header">
-                <div className="victory-stars">
-                  <div className="victory-star">★</div>
-                  <div className="victory-star">★</div>
-                  <div className="victory-star victory-star-large">★</div>
-                  <div className="victory-star">★</div>
-                  <div className="victory-star">★</div>
-                </div>
-                <button className="victory-close" onClick={() => setShowVictoryModal(false)}>✕</button>
+              {/* 顶部星星装饰 */}
+              <div className="victory-stars-top">
+                <div className="victory-star-small">★</div>
+                <div className="victory-star-small">★</div>
+                <div className="victory-star-large">★</div>
+                <div className="victory-star-small">★</div>
+                <div className="victory-star-small">★</div>
               </div>
+              
+              {/* 右上角关闭按钮 */}
+              <button className="victory-close" onClick={() => setShowVictoryModal(false)}>
+                <span>×</span>
+              </button>
+              
+              {/* 弹窗内容 */}
               <div className="victory-modal-content">
-                <h2 className="victory-title">恭喜胜利!</h2>
-                <p className="victory-subtitle">你成功击败了AI！</p>
+                <h2 className="victory-title">
+                  {winner === playerColor ? '恭喜胜利！' : '嘤嘤嘤～失败了呢'}
+                </h2>
               </div>
+              
+              {/* 底部按钮区域 */}
               <div className="victory-modal-buttons">
                 <button className="victory-button" onClick={handleReset}>
                   再来一局
