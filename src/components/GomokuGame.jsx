@@ -944,26 +944,6 @@ const GomokuGame = () => {
           )}
         </div>
 
-        {/* 顶部装饰区域 */}
-        <div className="top-decoration">
-          {/* 彩色星星 - 空心/实心结合 */}
-          <div className="decoration-star decoration-star-purple-filled">★</div>
-          <div className="decoration-star decoration-star-yellow-outline">★</div>
-          <div className="decoration-star decoration-star-blue-filled">★</div>
-          <div className="decoration-star decoration-star-purple-outline">★</div>
-          <div className="decoration-star decoration-star-yellow-filled">★</div>
-          <div className="decoration-star decoration-star-blue-outline">★</div>
-          <div className="decoration-star decoration-star-purple-filled-small">★</div>
-          <div className="decoration-star decoration-star-yellow-outline-small">★</div>
-          <div className="decoration-star decoration-star-blue-filled-small">★</div>
-          
-          {/* 闪光线条 */}
-          <div className="shine-line shine-line-1"></div>
-          <div className="shine-line shine-line-2"></div>
-          <div className="shine-line shine-line-3"></div>
-          <div className="shine-line shine-line-4"></div>
-        </div>
-
         {/* 星星装饰 */}
         <div className="stars-decoration">
           <div className="sparkle sparkle-1">✦</div>
