@@ -209,7 +209,10 @@ const GomokuGame = () => {
         if (targetRow !== null && targetCol !== null) {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor) {
+            // 根据isPlayer判断移除谁的棋子
+            if (isPlayer && newBoard[targetRow][targetCol] === aiColor) {
+              newBoard[targetRow][targetCol] = EMPTY
+            } else if (!isPlayer && newBoard[targetRow][targetCol] === playerColor) {
               newBoard[targetRow][targetCol] = EMPTY
             }
             return newBoard
@@ -269,7 +272,10 @@ const GomokuGame = () => {
         if (targetRow !== null && targetCol !== null) {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor) {
+            // 根据isPlayer判断移除谁的棋子
+            if (isPlayer && newBoard[targetRow][targetCol] === aiColor) {
+              newBoard[targetRow][targetCol] = EMPTY
+            } else if (!isPlayer && newBoard[targetRow][targetCol] === playerColor) {
               newBoard[targetRow][targetCol] = EMPTY
             }
             return newBoard
@@ -294,7 +300,9 @@ const GomokuGame = () => {
       case 'lebu': // 乐不思蜀：对手本回合不可出棋
         setActiveSkillEffects(prev => ({
           ...prev,
-          aiSkipTurn: true
+          // 根据isPlayer判断谁不能出棋
+          aiSkipTurn: isPlayer,
+          playerSkipTurn: !isPlayer
         }))
         break
 
@@ -316,8 +324,11 @@ const GomokuGame = () => {
         if (targetRow !== null && targetCol !== null) {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor) {
+            // 根据isPlayer判断转换方向
+            if (isPlayer && newBoard[targetRow][targetCol] === aiColor) {
               newBoard[targetRow][targetCol] = playerColor
+            } else if (!isPlayer && newBoard[targetRow][targetCol] === playerColor) {
+              newBoard[targetRow][targetCol] = aiColor
             }
             return newBoard
           })
