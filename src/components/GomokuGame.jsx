@@ -964,13 +964,11 @@ const GomokuGame = () => {
             {/* 玩家技能特效 - 显示在棋盘中央 */}
             {playerSkillEffect && (
               <div className="player-skill-effect-overlay">
-                <div className="player-skill-effect-container">
+                <div className={`player-skill-effect-container ${playerSkillEffect.skillName === '飞沙走石' ? 'feisha-effect' : ''}`}>
                   {/* 金色漩涡效果 */}
                   <div className="player-skill-vortex"></div>
                   {/* 沙尘效果 */}
                   <div className="player-skill-dust"></div>
-                  {/* 中心黑色球体 */}
-                  <div className="player-skill-black-sphere"></div>
                   {/* 技能名字文字 */}
                   <div className="player-skill-text">{playerSkillEffect.skillName}</div>
                 </div>

@@ -1503,6 +1503,12 @@
   justify-content: center;
 }
 
+/* 飞沙走石特效专用样式 */
+.player-skill-effect-container.feisha-effect {
+  width: 100px;
+  height: 100px;
+}
+
 /* 金色漩涡效果 - 螺旋刷子笔触风格 */
 .player-skill-vortex {
   position: absolute;
@@ -1532,6 +1538,11 @@
   opacity: 0.9;
 }
 
+/* 飞沙走石：漩涡动画 - 0-1秒扩散，1-2秒收缩并淡出 */
+.feisha-effect .player-skill-vortex {
+  animation: feishaVortexExpand 2s ease-in-out forwards;
+}
+
 /* 沙尘纹理效果 - 浅棕色沙粒 */
 .player-skill-dust {
   position: absolute;
@@ -1555,19 +1566,9 @@
   z-index: 1;
 }
 
-/* 中心黑色球体 */
-.player-skill-black-sphere {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, rgba(0, 0, 0, 0.95) 50%, #000000 100%);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.8),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.5),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.1);
-  z-index: 10;
-  animation: playerSkillSpherePulse 2s ease-in-out infinite;
+/* 飞沙走石：沙尘动画 - 跟随漩涡 */
+.feisha-effect .player-skill-dust {
+  animation: feishaDustExpand 2s ease-in-out forwards;
 }
 
 /* 技能名字文字 - 深棕/黑色，在中心显示 */
@@ -1594,6 +1595,18 @@
   margin-top: 60px; /* 文字在球体下方 */
 }
 
+/* 飞沙走石：文字动画 - 从透明到黑色，位于漩涡正中央 */
+.feisha-effect .player-skill-text {
+  font-size: 1.5rem;
+  color: #000000; /* 黑色 */
+  text-shadow: 
+    1px 1px 2px rgba(255, 255, 255, 0.8),
+    2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin-top: 0;
+  animation: feishaTextFadeIn 2s ease-out forwards;
+  letter-spacing: 2px;
+}
+
 @keyframes playerSkillVortexSpin {
   0% {
     transform: rotate(0deg) scale(1);
@@ -1605,14 +1618,65 @@
   }
 }
 
-@keyframes playerSkillSpherePulse {
-  0%, 100% {
-    transform: scale(1);
+/* 飞沙走石：漩涡扩散收缩动画 */
+@keyframes feishaVortexExpand {
+  0% {
+    /* 0秒：从中心开始，尺寸为0 */
+    transform: scale(0) rotate(0deg);
     opacity: 1;
   }
   50% {
-    transform: scale(1.05);
-    opacity: 0.95;
+    /* 1秒：放大到直径100px */
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    /* 2秒：收缩回中心，透明度降到0 */
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* 飞沙走石：沙尘跟随漩涡 */
+@keyframes feishaDustExpand {
+  0% {
+    /* 0秒：从中心开始 */
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    /* 1秒：跟随漩涡扩散到100px */
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    /* 2秒：跟随漩涡收缩并淡出 */
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* 飞沙走石：文字渐显动画 - 从透明到黑色 */
+@keyframes feishaTextFadeIn {
+  0% {
+    /* 0秒：完全透明 */
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  25% {
+    /* 0.5秒：开始显现 */
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  50% {
+    /* 1秒：完全显示（黑色） */
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    /* 2秒：保持显示 */
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
