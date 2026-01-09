@@ -247,7 +247,8 @@ const GomokuGame = () => {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(r => [...r])
             if (newBoard[targetRow][targetCol] === EMPTY) {
-              newBoard[targetRow][targetCol] = playerColor
+              // 根据isPlayer判断放置谁的棋子
+              newBoard[targetRow][targetCol] = isPlayer ? playerColor : aiColor
               return newBoard
             }
             return prevBoard
@@ -259,8 +260,10 @@ const GomokuGame = () => {
         if (targetRow !== null && targetCol !== null && targetRow2 !== null && targetCol2 !== null) {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(r => [...r])
-            if (newBoard[targetRow][targetCol] === aiColor && newBoard[targetRow2][targetCol2] === EMPTY) {
-              newBoard[targetRow2][targetCol2] = aiColor
+            // 根据isPlayer判断移动谁的棋子
+            const targetColor = isPlayer ? aiColor : playerColor
+            if (newBoard[targetRow][targetCol] === targetColor && newBoard[targetRow2][targetCol2] === EMPTY) {
+              newBoard[targetRow2][targetCol2] = targetColor
               newBoard[targetRow][targetCol] = EMPTY
             }
             return newBoard
@@ -286,9 +289,11 @@ const GomokuGame = () => {
       case 'liba': // 力拔山兮：清除对手所有棋子
         setBoard(prevBoard => {
           const newBoard = prevBoard.map(r => [...r])
+          // 根据isPlayer判断清除谁的棋子
+          const targetColor = isPlayer ? aiColor : playerColor
           for (let row = 0; row < BOARD_SIZE; row++) {
             for (let col = 0; col < BOARD_SIZE; col++) {
-              if (newBoard[row][col] === aiColor) {
+              if (newBoard[row][col] === targetColor) {
                 newBoard[row][col] = EMPTY
               }
             }
@@ -310,11 +315,14 @@ const GomokuGame = () => {
         break
 
       case 'wanjian': // 万箭齐发：本回合可下三子
-        setActiveSkillEffects(prev => ({
-          ...prev,
-          tripleMove: true,
-          remainingMoves: 3
-        }))
+        // 只有玩家使用才生效（AI不需要这个效果）
+        if (isPlayer) {
+          setActiveSkillEffects(prev => ({
+            ...prev,
+            tripleMove: true,
+            remainingMoves: 3
+          }))
+        }
         break
 
       case 'muxuan': // 目眩神迷：标记（视觉效果）
