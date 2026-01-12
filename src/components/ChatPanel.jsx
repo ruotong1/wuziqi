@@ -66,6 +66,40 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
     }
   }
 
+  // 通过bot_id直接连接
+  const handleConnectByBotId = async () => {
+    if (!botIdInput.trim()) {
+      alert('请输入bot_id')
+      return
+    }
+
+    if (!apiToken) {
+      alert('请先设置API Token')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const data = await getBotById(botIdInput.trim())
+      if (data.code === 0 && data.data) {
+        setSelectedBot(data.data)
+        setMessages([{
+          type: 'system',
+          content: `已连接到 ${data.data.name}，开始聊天吧！`
+        }])
+        chatParentIdRef.current = null
+        setBotIdInput('') // 清空输入
+      } else {
+        alert('获取bot详情失败，请检查bot_id是否正确')
+      }
+    } catch (error) {
+      console.error('获取bot详情失败:', error)
+      alert('获取bot详情失败，请检查bot_id和API Token')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   // 发送消息
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !selectedBot) return
