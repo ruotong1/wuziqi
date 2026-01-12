@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋游戏 - 启动说明</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+        }
+        .method {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .method h2 {
+            color: #764ba2;
+            margin-top: 0;
+        }
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #764ba2;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 五子棋游戏 - 启动说明</h1>
+        
+        <div class="success">
+            <strong>✅ 项目已构建完成！</strong><br>
+            生产版本已生成在 <code>dist</code> 文件夹中
+        </div>
+
+        <div class="method">
+            <h2>方法1：使用本地服务器（推荐）</h2>
+            <p>由于浏览器安全限制，需要启动一个本地服务器才能运行React应用。</p>
+            
+            <h3>选项A：使用Python（最简单）</h3>
+            <p>如果已安装Python：</p>
+            <div class="code">
+# Python 3
+cd dist
+python -m http.server 8080
+
+# 然后在浏览器打开：
+# http://localhost:8080/gomoku
+            </div>
+
+            <h3>选项B：使用Node.js</h3>
+            <p>如果已安装Node.js：</p>
+            <div class="code">
+# 安装 serve（如果还没有）
+npm install -g serve
+
+# 启动服务器
+cd dist
+serve -s . -l 8080
+
+# 然后在浏览器打开：
+# http://localhost:8080/gomoku
+            </div>
+
+            <h3>选项C：使用VS Code Live Server</h3>
+            <p>如果使用VS Code：</p>
+            <ol>
+                <li>安装 "Live Server" 扩展</li>
+                <li>右键点击 <code>dist/index.html</code></li>
+                <li>选择 "Open with Live Server"</li>
+                <li>浏览器会自动打开，访问 <code>/gomoku</code> 路由</li>
+            </ol>
+        </div>
+
+        <div class="method">
+            <h2>方法2：开发模式（推荐用于开发）</h2>
+            <p>运行开发服务器，支持热重载：</p>
+            <div class="code">
+npm install
+npm run dev
+
+# 然后在浏览器打开：
+# http://localhost:5173/gomoku
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 重要提示：</strong><br>
+            React应用不能直接双击HTML文件运行，必须通过HTTP服务器访问。
+            这是因为React使用了模块系统和路由，需要服务器环境。
+        </div>
+
+        <div class="method">
+            <h2>📋 快速启动脚本</h2>
+            <p>我已经创建了启动脚本，你可以：</p>
+            <ul>
+                <li><strong>Mac/Linux:</strong> 运行 <code>./start.sh</code></li>
+                <li><strong>Windows:</strong> 双击 <code>start.bat</code></li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="dist/index.html" class="button" onclick="alert('请使用方法1或2启动服务器！直接打开HTML文件可能无法正常工作。'); return false;">
+                查看构建文件
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+

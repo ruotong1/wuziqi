@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './GomokuGame.css'
+import ChatPanel from './ChatPanel'
 
 // Canvas 技能动画组件
 const SkillCanvasAnimation = ({ skillName, onComplete }) => {
@@ -145,6 +146,8 @@ const GomokuGame = () => {
   const [aiSkillEffect, setAiSkillEffect] = useState(null) // AI技能特效：{ skillName, position }
   const [playerSkillEffect, setPlayerSkillEffect] = useState(null) // 玩家技能特效：{ skillName }
   const [aiUsingWanjian, setAiUsingWanjian] = useState(false) // AI正在使用万箭齐发
+  const [showChatPanel, setShowChatPanel] = useState(false) // 显示聊天面板
+  const sendGameLogRef = useRef(null) // 发送游戏日志的函数引用
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
   const playerColorRef = useRef(playerColor)
@@ -627,6 +630,12 @@ const GomokuGame = () => {
                     moveNumber: prev.length + 1
                   }]
                   
+                  // 发送游戏日志给bot
+                  if (sendGameLogRef.current) {
+                    const logMessage = `AI在位置 (${bestMove.row + 1}, ${bestMove.col + 1}) 下了一手${aiColor === BLACK ? '黑棋' : '白棋'}，这是第${newHistory.length}步。`
+                    sendGameLogRef.current(logMessage)
+                  }
+                  
                   if (winLine) {
                     // AI获胜，保存记录但不显示弹窗
                     const record = {
@@ -956,6 +965,12 @@ const GomokuGame = () => {
           color: playerColor,
           moveNumber: prev.length + 1
         }]
+        
+        // 发送游戏日志给bot
+        if (sendGameLogRef.current) {
+          const logMessage = `玩家在位置 (${row + 1}, ${col + 1}) 下了一手${playerColor === BLACK ? '黑棋' : '白棋'}，这是第${newHistory.length}步。`
+          sendGameLogRef.current(logMessage)
+        }
         
         if (winLine) {
           // 保存游戏记录
@@ -1416,9 +1431,20 @@ const GomokuGame = () => {
             <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
               历史记录
             </button>
+            <button className="settings-button" onClick={() => setShowChatPanel(true)}>
+              AI聊天
+            </button>
           </div>
         </div>
 
+        {/* 聊天面板 */}
+        <ChatPanel 
+          isOpen={showChatPanel} 
+          onClose={() => setShowChatPanel(false)}
+          onGameLog={(sendLogFn) => {
+            sendGameLogRef.current = sendLogFn
+          }}
+        />
 
       </div>
     </div>

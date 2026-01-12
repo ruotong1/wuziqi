@@ -141,3 +141,7 @@ A: 在Worker代码中添加CORS头，或使用Cloudflare的CORS设置。
 
 需要我帮你创建Worker适配版本吗？
 
+
+
+
+
