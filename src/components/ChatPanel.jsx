@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { searchBots, getBotDetail, sendMessageToBot, setApiToken, getApiToken, setApiBaseUrl, getApiBaseUrl } from '../utils/botApi'
+import { searchBots, getBotDetail, getBotById, sendMessageToBot, setApiToken, getApiToken, setApiBaseUrl, getApiBaseUrl } from '../utils/botApi'
 import './ChatPanel.css'
 
 const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
@@ -8,6 +8,7 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [botIdInput, setBotIdInput] = useState('') // 直接输入bot_id
   const [isLoading, setIsLoading] = useState(false)
   const [apiToken, setApiTokenState] = useState(getApiToken())
   const [apiBaseUrl, setApiBaseUrlState] = useState(getApiBaseUrl())
@@ -164,30 +165,51 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
 
         {!selectedBot ? (
           <div className="chat-bot-selector">
-            <div className="bot-search-section">
+            <div className="bot-connect-section">
+              <h4 style={{ marginBottom: '15px', color: '#333' }}>通过Bot ID连接</h4>
               <input
                 type="text"
-                placeholder="搜索bot..."
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearchBots()}
+                placeholder="请输入bot_id（例如：Wn8oWQ9yBmNv）"
+                value={botIdInput}
+                onChange={(e) => setBotIdInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleConnectByBotId()}
                 className="bot-search-input"
               />
-              <button onClick={handleSearchBots} disabled={isLoading} className="bot-search-btn">
-                {isLoading ? '搜索中...' : '搜索'}
+              <button onClick={handleConnectByBotId} disabled={isLoading || !botIdInput.trim()} className="bot-search-btn">
+                {isLoading ? '连接中...' : '连接'}
               </button>
             </div>
 
-            <div className="bot-list">
-              {bots.map((bot) => (
-                <div key={bot.id} className="bot-item" onClick={() => handleSelectBot(bot)}>
-                  <img src={bot.avatar || '/default-avatar.png'} alt={bot.name} className="bot-avatar" />
-                  <div className="bot-info">
-                    <div className="bot-name">{bot.name}</div>
-                    <div className="bot-desc">{bot.primary_desc || bot.secondary_desc || '暂无描述'}</div>
-                  </div>
+            {/* 可选：保留搜索功能作为备选 */}
+            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255, 182, 193, 0.3)' }}>
+              <h4 style={{ marginBottom: '15px', color: '#333' }}>搜索Bot（可选）</h4>
+              <div className="bot-search-section">
+                <input
+                  type="text"
+                  placeholder="搜索bot..."
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearchBots()}
+                  className="bot-search-input"
+                />
+                <button onClick={handleSearchBots} disabled={isLoading} className="bot-search-btn">
+                  {isLoading ? '搜索中...' : '搜索'}
+                </button>
+              </div>
+
+              {bots.length > 0 && (
+                <div className="bot-list" style={{ marginTop: '15px' }}>
+                  {bots.map((bot) => (
+                    <div key={bot.id} className="bot-item" onClick={() => handleSelectBot(bot)}>
+                      <img src={bot.avatar || '/default-avatar.png'} alt={bot.name} className="bot-avatar" />
+                      <div className="bot-info">
+                        <div className="bot-name">{bot.name}</div>
+                        <div className="bot-desc">{bot.primary_desc || bot.secondary_desc || '暂无描述'}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         ) : (

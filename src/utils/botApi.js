@@ -3,7 +3,7 @@
 // 获取API基础URL
 export const getApiBaseUrl = () => {
   // 根据实际API地址修改，可以从环境变量或配置中获取
-  return localStorage.getItem('bot_api_base_url') || 'https://api.6pen.art'
+  return localStorage.getItem('bot_api_base_url') || 'https://note.niucodata.com/api/v1'
 }
 
 // 获取API token
@@ -11,13 +11,14 @@ export const getApiToken = () => {
   return localStorage.getItem('bot_api_token') || ''
 }
 
-// 搜索bot列表
+// 搜索bot列表（如果API支持）
 export const searchBots = async (keyword = '', page = 1, pageSize = 20) => {
   try {
     const API_BASE_URL = getApiBaseUrl()
     const API_TOKEN = getApiToken()
     
-    // 尝试不同的搜索端点
+    // 注意：如果API不支持搜索，可以返回空数组或抛出错误
+    // 这里先尝试搜索接口，如果不存在则返回空数组
     const searchUrl = keyword 
       ? `${API_BASE_URL}/bots/search?keyword=${encodeURIComponent(keyword)}&page=${page}&page_size=${pageSize}`
       : `${API_BASE_URL}/bots?page=${page}&page_size=${pageSize}`
@@ -31,6 +32,10 @@ export const searchBots = async (keyword = '', page = 1, pageSize = 20) => {
     })
     
     if (!response.ok) {
+      // 如果搜索接口不存在，返回空数组而不是抛出错误
+      if (response.status === 404) {
+        return { code: 0, data: [] }
+      }
       throw new Error(`搜索失败: ${response.status}`)
     }
     
@@ -38,8 +43,14 @@ export const searchBots = async (keyword = '', page = 1, pageSize = 20) => {
     return data
   } catch (error) {
     console.error('搜索bot列表失败:', error)
-    throw error
+    // 如果网络错误，返回空数组而不是抛出错误
+    return { code: 0, data: [] }
   }
+}
+
+// 通过bot_id直接获取bot（不需要搜索）
+export const getBotById = async (botId) => {
+  return await getBotDetail(botId)
 }
 
 // 获取bot详情
