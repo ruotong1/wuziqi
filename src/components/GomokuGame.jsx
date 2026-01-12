@@ -27,8 +27,8 @@ const GomokuGame = () => {
   })
   const [showHistory, setShowHistory] = useState(false) // 显示历史记录面板
   const [playerSkillEffect, setPlayerSkillEffect] = useState(null) // 玩家技能特效：{ skillName, imageIndex }
-  const boardRef = useRef(board)
-  const isPlayerTurnRef = useRef(isPlayerTurn)
+  const boardRef = useRef(null)
+  const isPlayerTurnRef = useRef(null)
   
   // 技能列表
   const skills = [
@@ -79,6 +79,9 @@ const GomokuGame = () => {
 
   // 同步ref
   useEffect(() => {
+    if (boardRef.current === null) {
+      boardRef.current = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
+    }
     boardRef.current = board
     isPlayerTurnRef.current = isPlayerTurn
   }, [board, isPlayerTurn])
