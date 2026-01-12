@@ -470,8 +470,8 @@ const GomokuGame = () => {
   const aiUseSkill = useCallback(() => {
     if (!skillMode || gameOver || usedSkills.length >= 12) return false
 
-    // AI有30%的概率使用技能
-    if (Math.random() > 0.3) return false
+    // AI有60%的概率使用技能
+    if (Math.random() > 0.6) return false
 
     // 获取可用的技能（排除已使用的，除非是"为所欲为"）
     const availableSkills = skills.filter(skill => !usedSkills.includes(skill.id) || skill.id === 'weiyu')
@@ -715,8 +715,8 @@ const GomokuGame = () => {
       return
     }
 
-    // 如果技能模式开启，AI可能先使用技能（30%概率）
-    if (skillMode && Math.random() < 0.3) {
+    // 如果技能模式开启，AI可能先使用技能（60%概率）
+    if (skillMode && Math.random() < 0.6) {
       const skillUsed = aiUseSkill()
       if (skillUsed) {
         // 如果AI使用了"万箭齐发"，aiUseSkill内部已经处理了下棋逻辑，不需要再调用makeAiMove
