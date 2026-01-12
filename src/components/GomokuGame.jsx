@@ -1,6 +1,108 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './GomokuGame.css'
 
+// Canvas 技能动画组件
+const SkillCanvasAnimation = ({ skillName, onComplete }) => {
+  const canvasRef = useRef(null)
+  const animationRef = useRef(null)
+  const imagesRef = useRef([])
+  const currentFrameRef = useRef(0)
+  const frameRate = 200 // 每帧间隔200ms（控制播放速度）
+
+  // 技能图片帧数组
+  const skillFrames = [
+    '/skill-anim-1.png',
+    '/skill-anim-2.png',
+    '/skill-anim-3.png'
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    const frameCount = skillFrames.length
+    let loadedCount = 0
+
+    // 加载所有图片
+    const loadImages = () => {
+      return new Promise((resolve) => {
+        skillFrames.forEach((url, index) => {
+          const img = new Image()
+          img.onload = () => {
+            loadedCount++
+            if (loadedCount === frameCount) {
+              resolve()
+            }
+          }
+          img.onerror = () => {
+            // 图片加载失败时使用占位符
+            loadedCount++
+            if (loadedCount === frameCount) {
+              resolve()
+            }
+          }
+          img.src = url
+          imagesRef.current[index] = img
+        })
+      })
+    }
+
+    // 绘制当前帧
+    const drawFrame = (frameIndex) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const img = imagesRef.current[frameIndex]
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      }
+    }
+
+    // 播放动画
+    const playAnimation = async () => {
+      await loadImages()
+      
+      currentFrameRef.current = 0
+      drawFrame(0)
+
+      animationRef.current = setInterval(() => {
+        currentFrameRef.current++
+        if (currentFrameRef.current < frameCount) {
+          drawFrame(currentFrameRef.current)
+        } else {
+          // 动画播放完成
+          clearInterval(animationRef.current)
+          // 显示技能名字
+          setTimeout(() => {
+            if (onComplete) onComplete()
+          }, 500)
+        }
+      }, frameRate)
+    }
+
+    playAnimation()
+
+    // 清理函数
+    return () => {
+      if (animationRef.current) {
+        clearInterval(animationRef.current)
+      }
+    }
+  }, [skillName, onComplete])
+
+  return (
+    <div className="skill-canvas-container">
+      <canvas 
+        ref={canvasRef}
+        width={450}
+        height={450}
+        className="skill-canvas"
+      />
+      {/* 技能名字显示 */}
+      <div className="skill-name-display">{skillName}</div>
+    </div>
+  )
+}
+
 const BOARD_SIZE = 15
 const EMPTY = 0
 const BLACK = 1
@@ -211,7 +313,7 @@ const GomokuGame = () => {
       const skill = skills.find(s => s.id === skillId)
       if (skill) {
         setPlayerSkillEffect({ skillName: skill.name })
-        setTimeout(() => setPlayerSkillEffect(null), 2000) // 2秒后隐藏
+        // Canvas动画会在完成后自动隐藏，不需要手动设置超时
       }
     }
 
@@ -1126,58 +1228,18 @@ const GomokuGame = () => {
 
         <div className="board-container">
           <div className="gomoku-board" style={{ position: 'relative' }}>
-            {/* 玩家技能特效 - 显示在棋盘中央 - 卡包打开动画 */}
+            {/* 玩家技能特效 - Canvas逐帧动画 */}
             {playerSkillEffect && (
               <div className="player-skill-effect-overlay">
-                <div className="gacha-anim-container">
-                  {/* 粉色背景 */}
-                  <div className="gacha-pink-bg"></div>
-                  
-                  {/* 圆形绿色草地 */}
-                  <div className="gacha-grass-circle"></div>
-                  
-                  {/* 紫色边框卡包 */}
-                  <div className="gacha-card-pack">
-                    <div className="gacha-pack-left"></div>
-                    <div className="gacha-pack-right"></div>
-                  </div>
-                  
-                  {/* 金色卡牌 */}
-                  <div className="gacha-golden-card">
-                    <div className="gacha-card-back"></div>
-                    <div className="gacha-card-front">
-                      <div className="gacha-card-character"></div>
-                    </div>
-                  </div>
-                  
-                  {/* 星星装饰 */}
-                  <div className="gacha-star gacha-star-1">★</div>
-                  <div className="gacha-star gacha-star-2">★</div>
-                  <div className="gacha-star gacha-star-3">★</div>
-                  <div className="gacha-star gacha-star-4">★</div>
-                  <div className="gacha-star gacha-star-5">★</div>
-                  <div className="gacha-star gacha-star-6">★</div>
-                  <div className="gacha-star gacha-star-7">★</div>
-                  
-                  {/* 黄色月亮装饰 */}
-                  <div className="gacha-moon">🌙</div>
-                  
-                  {/* 淡紫色光晕效果 */}
-                  <div className="gacha-glow"></div>
-                  
-                  {/* 彩色光效 */}
-                  <div className="gacha-colorful-effects">
-                    <div className="gacha-effect-1"></div>
-                    <div className="gacha-effect-2"></div>
-                    <div className="gacha-effect-3"></div>
-                  </div>
-                  
-                  {/* SSR金色字样 */}
-                  <div className="gacha-ssr-text">SSR</div>
-                  
-                  {/* 技能名字 */}
-                  <div className="gacha-skill-name">{playerSkillEffect.skillName}</div>
-                </div>
+                <SkillCanvasAnimation 
+                  skillName={playerSkillEffect.skillName}
+                  onComplete={() => {
+                    // 动画完成后延迟隐藏
+                    setTimeout(() => {
+                      setPlayerSkillEffect(null)
+                    }, 1000)
+                  }}
+                />
               </div>
             )}
             {board.map((row, rowIndex) => (
