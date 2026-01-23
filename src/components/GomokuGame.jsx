@@ -244,7 +244,6 @@ const GomokuGame = () => {
   })
   const [inputMessage, setInputMessage] = useState('')
   const [isSendingMessage, setIsSendingMessage] = useState(false)
-  const messagesEndRef = useRef(null)
   
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
@@ -298,10 +297,6 @@ const GomokuGame = () => {
     }
   }, [])
 
-  // 自动滚动到最新消息
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [chatMessages])
 
   // 同步ref
   useEffect(() => {
@@ -1372,87 +1367,47 @@ const GomokuGame = () => {
         ))}
       </div>
 
-      {/* 左上角聊天面板 */}
-      {selectedBot && (
-        <div className="chat-panel-top-left">
-          {/* AI信息头部 */}
-          <div className="ai-info-header">
-            <img 
-              src={selectedBot.avatar || '/default-avatar.png'} 
-              alt={selectedBot.name}
-              className="ai-info-avatar"
-              onError={(e) => {
-                e.target.src = '/default-avatar.png'
-              }}
-            />
-            <div className="ai-info-content">
-              <div className="ai-info-name">{selectedBot.name}</div>
-              <div className="ai-info-desc">{selectedBot.primary_desc || selectedBot.secondary_desc || selectedBot.description || '本地AI助手'}</div>
-            </div>
-          </div>
-          
-          {/* 消息区域 */}
-          <div className="chat-messages-area">
-            {chatMessages.map((msg, index) => (
-              <div key={index} className={`message-bubble ${msg.type}`}>
-                {msg.type === 'bot' && (
-                  <img 
-                    src={selectedBot.avatar || '/default-avatar.png'} 
-                    alt={selectedBot.name}
-                    className="message-avatar"
-                    onError={(e) => {
-                      e.target.src = '/default-avatar.png'
-                    }}
-                  />
-                )}
-                <div className="message-content-wrapper">
-                  <div className="message-content">
-                    <div className="message-text">{msg.content}</div>
-                    <div className="message-time">
-                      {msg.timestamp?.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
-                </div>
+      {/* 右上角AI头像和对话气泡 */}
+      {selectedBot && (() => {
+        // 获取最新的AI回复
+        const latestBotMessage = [...chatMessages].reverse().find(msg => msg.type === 'bot')
+        const hasMessage = latestBotMessage && !isSendingMessage
+        
+        return (
+          <div className="ai-chat-top-right">
+            <div className="ai-avatar-with-wreath">
+              <div className="christmas-wreath">
+                <div className="wreath-ring"></div>
+                <div className="wreath-berries"></div>
+                <div className="wreath-bells"></div>
               </div>
-            ))}
-            {isSendingMessage && (
-              <div className="message-bubble bot">
-                <img 
-                  src={selectedBot.avatar || '/default-avatar.png'} 
-                  alt={selectedBot.name}
-                  className="message-avatar"
-                />
-                <div className="message-content-wrapper">
-                  <div className="message-content">
-                    <div className="message-text typing">正在输入...</div>
-                  </div>
+              <img 
+                src={selectedBot.avatar || '/default-avatar.png'} 
+                alt={selectedBot.name}
+                className="ai-avatar-circle"
+                onError={(e) => {
+                  e.target.src = '/default-avatar.png'
+                }}
+              />
+            </div>
+            {(hasMessage || isSendingMessage) && (
+              <div className="ai-speech-bubble">
+                <div className="speech-bubble-content">
+                  {isSendingMessage ? (
+                    <div className="typing-indicator">正在输入...</div>
+                  ) : (
+                    <div className="speech-bubble-text">{latestBotMessage.content}</div>
+                  )}
+                </div>
+                <div className="speech-bubble-decoration">
+                  <span className="berry">🍒</span>
+                  <span className="holly">🍃</span>
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
-          
-          {/* 输入区域 */}
-          <div className="chat-input-area">
-            <input
-              type="text"
-              placeholder="输入消息..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              className="chat-input"
-              disabled={isSendingMessage}
-            />
-            <button 
-              onClick={handleSendMessage} 
-              disabled={isSendingMessage || !inputMessage.trim()} 
-              className="chat-send-btn"
-            >
-              发送
-            </button>
-          </div>
-        </div>
-      )}
+        )
+      })()}
 
       <div className="gomoku-container">
 
@@ -1682,6 +1637,28 @@ const GomokuGame = () => {
               历史记录
             </button>
           </div>
+          
+          {/* 底部输入区域 */}
+          {selectedBot && (
+            <div className="chat-input-area-bottom">
+              <input
+                type="text"
+                placeholder="输入消息..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                className="chat-input-bottom"
+                disabled={isSendingMessage}
+              />
+              <button 
+                onClick={handleSendMessage} 
+                disabled={isSendingMessage || !inputMessage.trim()} 
+                className="chat-send-btn-bottom"
+              >
+                发送
+              </button>
+            </div>
+          )}
         </div>
 
 
