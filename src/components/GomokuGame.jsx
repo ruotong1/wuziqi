@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './GomokuGame.css'
-import ChatPanel from './ChatPanel'
 
 // Canvas 技能动画组件
 const SkillCanvasAnimation = ({ skillName, onComplete }) => {
@@ -110,6 +109,78 @@ const BLACK = 1
 const WHITE = 2
 const CELL_SIZE = 36 // 每个交叉点的大小（增大以方便点击）
 
+// 预设随机头像列表
+const RANDOM_AVATARS = [
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=default1',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=default2',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=default3',
+  'https://api.dicebear.com/7.x/personas/svg?seed=default4',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=default5',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=default6',
+  'https://api.dicebear.com/7.x/personas/svg?seed=default7',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=default8',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=default9',
+  'https://api.dicebear.com/7.x/personas/svg?seed=default10',
+]
+
+// 随机选择头像函数
+const getRandomAvatar = () => {
+  const randomIndex = Math.floor(Math.random() * RANDOM_AVATARS.length)
+  return RANDOM_AVATARS[randomIndex]
+}
+
+// 默认AI配置（头像将在初始化时随机选择）
+const getDefaultAI = (avatar) => ({
+  id: 'default',
+  name: '默认AI助手',
+  avatar: avatar || getRandomAvatar(),
+  description: '本地AI助手，无需API即可聊天',
+  primary_desc: '本地AI助手，无需API即可聊天',
+  secondary_desc: '随时可用，无需配置'
+})
+
+// 默认AI本地模拟回复函数
+const getDefaultAIReply = (userMessage) => {
+  const lowerMessage = userMessage.toLowerCase().trim()
+  
+  // 问候语
+  if (lowerMessage.includes('你好') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+    return '你好！我是默认AI助手，很高兴和你聊天！让我们一起来下五子棋吧！'
+  }
+  
+  // 关于下棋
+  if (lowerMessage.includes('下棋') || lowerMessage.includes('游戏') || lowerMessage.includes('五子棋')) {
+    return '让我们一起来下五子棋吧！我会认真思考每一步的。你准备好了吗？'
+  }
+  
+  // 关于策略
+  if (lowerMessage.includes('策略') || lowerMessage.includes('怎么下') || lowerMessage.includes('如何')) {
+    return '五子棋的关键是要同时考虑进攻和防守。我会尽量阻止你连成五子，同时寻找自己的机会。'
+  }
+  
+  // 感谢
+  if (lowerMessage.includes('谢谢') || lowerMessage.includes('thank')) {
+    return '不客气！继续加油，享受游戏吧！'
+  }
+  
+  // 鼓励
+  if (lowerMessage.includes('加油') || lowerMessage.includes('努力')) {
+    return '一起加油！我相信你能下得很好！'
+  }
+  
+  // 关于AI
+  if (lowerMessage.includes('你是谁') || lowerMessage.includes('你是什么') || lowerMessage.includes('介绍')) {
+    return '我是默认AI助手，是一个本地AI，不需要网络连接就能和你聊天。虽然功能简单，但我会尽力和你互动！'
+  }
+  
+  // 默认回复 - 根据消息长度给出不同回复
+  if (lowerMessage.length <= 5) {
+    return `"${userMessage}"？我明白了。让我们继续下棋吧！`
+  } else {
+    return `我理解你说的"${userMessage}"。虽然我是本地AI，功能有限，但我会认真对待每一局游戏。让我们继续下棋吧！`
+  }
+}
+
 const GomokuGame = () => {
   const [board, setBoard] = useState(() => 
     Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
@@ -146,8 +217,35 @@ const GomokuGame = () => {
   const [aiSkillEffect, setAiSkillEffect] = useState(null) // AI技能特效：{ skillName, position }
   const [playerSkillEffect, setPlayerSkillEffect] = useState(null) // 玩家技能特效：{ skillName }
   const [aiUsingWanjian, setAiUsingWanjian] = useState(false) // AI正在使用万箭齐发
-  const [showChatPanel, setShowChatPanel] = useState(false) // 显示聊天面板
-  const sendGameLogRef = useRef(null) // 发送游戏日志的函数引用
+  
+  // 聊天相关状态
+  const [selectedBot, setSelectedBot] = useState(() => {
+    // 从localStorage加载选中的bot
+    const saved = localStorage.getItem('selected-bot')
+    return saved ? JSON.parse(saved) : null
+  })
+  const [useDefaultAI, setUseDefaultAI] = useState(() => {
+    // 从localStorage加载是否使用默认AI
+    const saved = localStorage.getItem('use-default-ai')
+    return saved === 'true'
+  })
+  const [chatMessages, setChatMessages] = useState(() => {
+    // 如果有选中的bot，初始化欢迎消息
+    const saved = localStorage.getItem('selected-bot')
+    if (saved) {
+      const bot = JSON.parse(saved)
+      return [{
+        type: 'system',
+        content: `已连接到 ${bot.name}，开始聊天吧！`,
+        timestamp: new Date()
+      }]
+    }
+    return []
+  })
+  const [inputMessage, setInputMessage] = useState('')
+  const [isSendingMessage, setIsSendingMessage] = useState(false)
+  const messagesEndRef = useRef(null)
+  
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
   const playerColorRef = useRef(playerColor)
@@ -156,6 +254,54 @@ const GomokuGame = () => {
   useEffect(() => {
     localStorage.setItem('gomoku-history', JSON.stringify(gameHistory))
   }, [gameHistory])
+
+  // 保存选中的bot到localStorage
+  useEffect(() => {
+    if (selectedBot) {
+      localStorage.setItem('selected-bot', JSON.stringify(selectedBot))
+    } else {
+      localStorage.removeItem('selected-bot')
+    }
+  }, [selectedBot])
+
+  // 保存是否使用默认AI到localStorage
+  useEffect(() => {
+    localStorage.setItem('use-default-ai', useDefaultAI.toString())
+  }, [useDefaultAI])
+
+  // 组件挂载时自动启用默认AI
+  useEffect(() => {
+    // 如果localStorage中没有选中的bot，自动启用默认AI
+    if (!selectedBot) {
+      // 检查localStorage中是否保存了默认AI的头像
+      const savedDefaultAvatar = localStorage.getItem('default-ai-avatar')
+      let avatar = savedDefaultAvatar
+      
+      // 如果没有保存的头像，随机选择一个并保存
+      if (!avatar) {
+        avatar = getRandomAvatar()
+        localStorage.setItem('default-ai-avatar', avatar)
+      }
+      
+      // 创建默认AI实例
+      const defaultAI = getDefaultAI(avatar)
+      setSelectedBot(defaultAI)
+      setUseDefaultAI(true)
+      setChatMessages([{
+        type: 'system',
+        content: `已连接到 ${defaultAI.name}，开始聊天吧！`,
+        timestamp: new Date()
+      }])
+    } else if (selectedBot.id === 'default') {
+      // 如果已选择默认AI，确保useDefaultAI为true
+      setUseDefaultAI(true)
+    }
+  }, [])
+
+  // 自动滚动到最新消息
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages])
 
   // 同步ref
   useEffect(() => {
@@ -630,11 +776,6 @@ const GomokuGame = () => {
                     moveNumber: prev.length + 1
                   }]
                   
-                  // 发送游戏日志给bot
-                  if (sendGameLogRef.current) {
-                    const logMessage = `AI在位置 (${bestMove.row + 1}, ${bestMove.col + 1}) 下了一手${aiColor === BLACK ? '黑棋' : '白棋'}，这是第${newHistory.length}步。`
-                    sendGameLogRef.current(logMessage)
-                  }
                   
                   if (winLine) {
                     // AI获胜，保存记录但不显示弹窗
@@ -966,11 +1107,6 @@ const GomokuGame = () => {
           moveNumber: prev.length + 1
         }]
         
-        // 发送游戏日志给bot
-        if (sendGameLogRef.current) {
-          const logMessage = `玩家在位置 (${row + 1}, ${col + 1}) 下了一手${playerColor === BLACK ? '黑棋' : '白棋'}，这是第${newHistory.length}步。`
-          sendGameLogRef.current(logMessage)
-        }
         
         if (winLine) {
           // 保存游戏记录
@@ -1169,6 +1305,37 @@ const GomokuGame = () => {
     localStorage.removeItem('gomoku-history')
   }, [])
 
+  // 发送消息
+  const handleSendMessage = useCallback(() => {
+    if (!inputMessage.trim() || !selectedBot || isSendingMessage) return
+
+    const userMessage = {
+      type: 'user',
+      content: inputMessage,
+      timestamp: new Date()
+    }
+
+    setChatMessages(prev => [...prev, userMessage])
+    const messageToSend = inputMessage
+    setInputMessage('')
+    setIsSendingMessage(true)
+
+    // 如果使用默认AI，使用本地模拟回复
+    if (useDefaultAI) {
+      // 模拟网络延迟
+      setTimeout(() => {
+        const reply = getDefaultAIReply(messageToSend)
+        const botMessage = {
+          type: 'bot',
+          content: reply,
+          timestamp: new Date()
+        }
+        setChatMessages(prev => [...prev, botMessage])
+        setIsSendingMessage(false)
+      }, 500 + Math.random() * 500) // 500-1000ms延迟，模拟真实AI响应
+    }
+  }, [inputMessage, selectedBot, isSendingMessage, useDefaultAI])
+
   // 判断是否是最后一步
   const isLastMove = useCallback((row, col) => {
     return lastMove && lastMove.row === row && lastMove.col === col
@@ -1204,6 +1371,89 @@ const GomokuGame = () => {
           <div key={`sparkle-bg-${i}`} className={`sparkle-bg sparkle-bg-${i + 1}`}>✦</div>
         ))}
       </div>
+
+      {/* 左上角聊天面板 */}
+      {selectedBot && (
+        <div className="chat-panel-top-left">
+          {/* AI信息头部 */}
+          <div className="ai-info-header">
+            <img 
+              src={selectedBot.avatar || '/default-avatar.png'} 
+              alt={selectedBot.name}
+              className="ai-info-avatar"
+              onError={(e) => {
+                e.target.src = '/default-avatar.png'
+              }}
+            />
+            <div className="ai-info-content">
+              <div className="ai-info-name">{selectedBot.name}</div>
+              <div className="ai-info-desc">{selectedBot.primary_desc || selectedBot.secondary_desc || selectedBot.description || '本地AI助手'}</div>
+            </div>
+          </div>
+          
+          {/* 消息区域 */}
+          <div className="chat-messages-area">
+            {chatMessages.map((msg, index) => (
+              <div key={index} className={`message-bubble ${msg.type}`}>
+                {msg.type === 'bot' && (
+                  <img 
+                    src={selectedBot.avatar || '/default-avatar.png'} 
+                    alt={selectedBot.name}
+                    className="message-avatar"
+                    onError={(e) => {
+                      e.target.src = '/default-avatar.png'
+                    }}
+                  />
+                )}
+                <div className="message-content-wrapper">
+                  <div className="message-content">
+                    <div className="message-text">{msg.content}</div>
+                    <div className="message-time">
+                      {msg.timestamp?.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {isSendingMessage && (
+              <div className="message-bubble bot">
+                <img 
+                  src={selectedBot.avatar || '/default-avatar.png'} 
+                  alt={selectedBot.name}
+                  className="message-avatar"
+                />
+                <div className="message-content-wrapper">
+                  <div className="message-content">
+                    <div className="message-text typing">正在输入...</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {/* 输入区域 */}
+          <div className="chat-input-area">
+            <input
+              type="text"
+              placeholder="输入消息..."
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              className="chat-input"
+              disabled={isSendingMessage}
+            />
+            <button 
+              onClick={handleSendMessage} 
+              disabled={isSendingMessage || !inputMessage.trim()} 
+              className="chat-send-btn"
+            >
+              发送
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="gomoku-container">
 
         <div className="game-info">
@@ -1431,20 +1681,9 @@ const GomokuGame = () => {
             <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
               历史记录
             </button>
-            <button className="settings-button" onClick={() => setShowChatPanel(true)}>
-              AI聊天
-            </button>
           </div>
         </div>
 
-        {/* 聊天面板 */}
-        <ChatPanel 
-          isOpen={showChatPanel} 
-          onClose={() => setShowChatPanel(false)}
-          onGameLog={(sendLogFn) => {
-            sendGameLogRef.current = sendLogFn
-          }}
-        />
 
       </div>
     </div>
