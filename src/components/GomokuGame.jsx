@@ -139,83 +139,277 @@ const getDefaultAI = (avatar) => ({
   secondary_desc: '随时可用，无需配置'
 })
 
-// 默认AI本地模拟回复函数
-const getDefaultAIReply = (userMessage, recentReplies = []) => {
+// 解析坐标格式 (x,y) 或 (x, y)
+const parseCoordinate = (message) => {
+  const match = message.match(/\((\d+)\s*,\s*(\d+)\)/)
+  if (match) {
+    const x = parseInt(match[1])
+    const y = parseInt(match[2])
+    if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
+      return { x, y, row: y, col: x } // 注意：棋盘是row,col，坐标是x,y
+    }
+  }
+  return null
+}
+
+// 检查聊天棋盘是否五连
+const checkChatWin = (boardState, row, col, player) => {
+  const directions = [
+    { dx: 0, dy: 1 },   // 水平
+    { dx: 1, dy: 0 },     // 垂直
+    { dx: 1, dy: 1 },    // 主对角线
+    { dx: 1, dy: -1 }    // 副对角线
+  ]
+
+  for (let { dx, dy } of directions) {
+    let count = 1
+
+    // 正向检查
+    for (let i = 1; i < 5; i++) {
+      const newRow = row + dx * i
+      const newCol = col + dy * i
+      if (
+        newRow >= 0 && newRow < BOARD_SIZE &&
+        newCol >= 0 && newCol < BOARD_SIZE &&
+        boardState[newRow][newCol] === player
+      ) {
+        count++
+      } else {
+        break
+      }
+    }
+
+    // 反向检查
+    for (let i = 1; i < 5; i++) {
+      const newRow = row - dx * i
+      const newCol = col - dy * i
+      if (
+        newRow >= 0 && newRow < BOARD_SIZE &&
+        newCol >= 0 && newCol < BOARD_SIZE &&
+        boardState[newRow][newCol] === player
+      ) {
+        count++
+      } else {
+        break
+      }
+    }
+
+    if (count >= 5) {
+      return true
+    }
+  }
+
+  return false
+}
+
+// 简单的AI落子评估（用于聊天对弈）
+const evaluateChatPosition = (boardState, row, col, player) => {
+  const directions = [
+    [0, 1], [1, 0], [1, 1], [1, -1]
+  ]
+  let score = 0
+
+  for (let [dx, dy] of directions) {
+    let count = 1
+    let blocked = 0
+
+    // 正向检查
+    for (let i = 1; i < 5; i++) {
+      const newRow = row + dx * i
+      const newCol = col + dy * i
+      if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
+        if (boardState[newRow][newCol] === player) {
+          count++
+        } else if (boardState[newRow][newCol] !== EMPTY) {
+          blocked++
+          break
+        } else {
+          break
+        }
+      } else {
+        blocked++
+        break
+      }
+    }
+
+    // 反向检查
+    for (let i = 1; i < 5; i++) {
+      const newRow = row - dx * i
+      const newCol = col - dy * i
+      if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
+        if (boardState[newRow][newCol] === player) {
+          count++
+        } else if (boardState[newRow][newCol] !== EMPTY) {
+          blocked++
+          break
+        } else {
+          break
+        }
+      } else {
+        blocked++
+        break
+      }
+    }
+
+    // 根据连子数和阻塞情况给分
+    if (count >= 5) score += 100000
+    else if (count === 4 && blocked === 0) score += 10000
+    else if (count === 4 && blocked === 1) score += 1000
+    else if (count === 3 && blocked === 0) score += 100
+    else if (count === 3 && blocked === 1) score += 10
+    else if (count === 2 && blocked === 0) score += 5
+  }
+
+  return score
+}
+
+// 计算AI的落子位置
+const calculateAIMove = (boardState, aiColor, playerColor) => {
+  const moves = []
+
+  // 收集所有可能的下棋位置
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      if (boardState[row][col] === EMPTY) {
+        const attackScore = evaluateChatPosition(boardState, row, col, aiColor)
+        const defenseScore = evaluateChatPosition(boardState, row, col, playerColor)
+        const totalScore = attackScore * 2 + defenseScore
+        moves.push({ row, col, score: totalScore })
+      }
+    }
+  }
+
+  if (moves.length === 0) return null
+
+  // 选择得分最高的位置
+  moves.sort((a, b) => b.score - a.score)
+  const topScore = moves[0].score
+  const topMoves = moves.filter(m => m.score === topScore)
+  return topMoves[Math.floor(Math.random() * topMoves.length)]
+}
+
+// 默认AI本地模拟回复函数（五子棋对弈版）
+const getDefaultAIReply = (userMessage, recentReplies = [], chatBoardState, chatPlayerColor, chatAIColor, chatGameOver, setChatBoardState, setChatGameOver, setChatWinner, setChatMoveHistory) => {
   const lowerMessage = userMessage.toLowerCase().trim()
   
-  // 问候语
+  // 如果游戏已结束，提示重新开始
+  if (chatGameOver) {
+    if (lowerMessage.includes('重新') || lowerMessage.includes('再来') || lowerMessage.includes('开始')) {
+      // 重置棋盘
+      const newBoard = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
+      setChatBoardState(newBoard)
+      setChatGameOver(false)
+      setChatWinner(null)
+      setChatMoveHistory([])
+      return '好的，让我们重新开始一局五子棋吧！请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。'
+    }
+    return '游戏已经结束了，如果想重新开始，请说"重新开始"或"再来一局"。'
+  }
+
+  // 解析用户输入的坐标
+  const userMove = parseCoordinate(userMessage)
+  
+  if (userMove) {
+    // 用户输入了坐标格式
+    const { row, col } = userMove
+    
+    // 检查位置是否有效
+    if (chatBoardState[row][col] !== EMPTY) {
+      return `你选择的位置 (${userMove.x},${userMove.y}) 已经有棋子了，请换一个坐标~`
+    }
+    
+    // 用户落子
+    const newBoard = chatBoardState.map(r => [...r])
+    newBoard[row][col] = chatPlayerColor
+    setChatMoveHistory(prev => [...prev, { row, col, player: 'user', color: chatPlayerColor }])
+    
+    // 检查用户是否获胜
+    if (checkChatWin(newBoard, row, col, chatPlayerColor)) {
+      setChatBoardState(newBoard)
+      setChatGameOver(true)
+      setChatWinner(chatPlayerColor)
+      const styles = [
+        `恭喜你！成功连成5颗黑棋，你赢啦！这局你下得很棒！`,
+        `哈哈，你赢了！连成5颗黑棋，这局我输了，要不要再来一局？`,
+        `太厉害了！你成功连成5颗，这局你胜！`
+      ]
+      return styles[Math.floor(Math.random() * styles.length)]
+    }
+    
+    // AI计算落子
+    const aiMove = calculateAIMove(newBoard, chatAIColor, chatPlayerColor)
+    
+    if (!aiMove) {
+      // 棋盘已满，平局
+      setChatBoardState(newBoard)
+      setChatGameOver(true)
+      setChatWinner(null)
+      return '棋盘已经下满啦，这局是平局！双方棋艺相当，太精彩了~'
+    }
+    
+    // AI落子
+    newBoard[aiMove.row][aiMove.col] = chatAIColor
+    setChatMoveHistory(prev => [...prev, { row: aiMove.row, col: aiMove.col, player: 'ai', color: chatAIColor }])
+    
+    // 检查AI是否获胜
+    let aiWon = false
+    if (checkChatWin(newBoard, aiMove.row, aiMove.col, chatAIColor)) {
+      aiWon = true
+      setChatGameOver(true)
+      setChatWinner(chatAIColor)
+    }
+    
+    setChatBoardState(newBoard)
+    
+    // 生成回复（随机选择风格）
+    const style = Math.floor(Math.random() * 4)
+    const aiPos = `(${aiMove.col},${aiMove.row})`
+    
+    if (aiWon) {
+      const winReplies = [
+        `哈哈，我先连成5颗白棋，这局我胜！要不要再来一局？`,
+        `我落子在 **${aiPos}**，成功连成5颗，这局我赢了！`,
+        `我在 ${aiPos} 落子，连成5颗白棋，这局我胜！`
+      ]
+      return winReplies[Math.floor(Math.random() * winReplies.length)]
+    }
+    
+    // 根据风格生成回复
+    switch (style) {
+      case 0: // 新手友好型
+        return `我落子在 **${aiPos}**~\n局面分析：你在 (${userMove.x},${userMove.y}) 下了黑棋；我在 ${aiPos} 落子，暂时不会让你快速连成线哦。\n目前还没分出胜负，你可以继续选一个位置落子，比如试试 (${aiMove.col + 1},${aiMove.row}) 或者 (${aiMove.col},${aiMove.row + 1}) 呀~`
+      
+      case 1: // 策略分析型
+        return `我的落子位置：**${aiPos}**\n局面分析：你执黑在 (${userMove.x},${userMove.y}) 落子；我选择 ${aiPos} 落子，既考虑防守也寻找进攻机会。\n胜负未分，请你落子，建议关注对角线方向的点位布局。`
+      
+      case 2: // 趣味调侃型
+        return `嘿嘿，我选 **${aiPos}** 这个位置！\n局面分析：你在 (${userMove.x},${userMove.y}) 下了黑棋，可惜被我在 ${aiPos} 卡位啦，想三连？没那么容易~\n现在棋盘还有空间，快选个位置反击我，别怂！`
+      
+      case 3: // 严谨竞技型
+        return `落子：**${aiPos}**\n局面分析：黑棋 (${userMove.x},${userMove.y}) 落子，白棋 ${aiPos} 对位。\n未分胜负，请出棋。`
+      
+      default:
+        return `我落子在 ${aiPos}，请继续。`
+    }
+  }
+  
+  // 非坐标格式的回复
   if (lowerMessage.includes('你好') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-    const replies = [
-      '你好！我是默认AI助手，很高兴和你聊天！让我们一起来下五子棋吧！',
-      '你好呀！准备好和我下五子棋了吗？',
-      '嗨！很高兴见到你，让我们开始游戏吧！'
-    ]
-    return getNonRepeatingReply(replies, recentReplies)
+    return '你好！我是五子棋对弈AI，请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。'
   }
   
-  // 关于下棋
-  if (lowerMessage.includes('下棋') || lowerMessage.includes('游戏') || lowerMessage.includes('五子棋')) {
-    const replies = [
-      '让我们一起来下五子棋吧！我会认真思考每一步的。你准备好了吗？',
-      '好的，让我们开始下五子棋！我会全力以赴的。',
-      '五子棋是个有趣的游戏，让我们开始吧！'
-    ]
-    return getNonRepeatingReply(replies, recentReplies)
+  if (lowerMessage.includes('下棋') || lowerMessage.includes('游戏') || lowerMessage.includes('五子棋') || lowerMessage.includes('开始')) {
+    // 重置棋盘
+    const newBoard = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
+    setChatBoardState(newBoard)
+    setChatGameOver(false)
+    setChatWinner(null)
+    setChatMoveHistory([])
+    return '好的，让我们开始下五子棋吧！请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。你执黑先手，我执白。'
   }
   
-  // 关于策略
-  if (lowerMessage.includes('策略') || lowerMessage.includes('怎么下') || lowerMessage.includes('如何')) {
-    const replies = [
-      '五子棋的关键是要同时考虑进攻和防守。我会尽量阻止你连成五子，同时寻找自己的机会。',
-      '我的策略是攻守兼备，既要阻止你连成五子，也要寻找自己的获胜机会。',
-      '我会根据棋盘情况灵活调整策略，既要防守也要进攻。'
-    ]
-    return getNonRepeatingReply(replies, recentReplies)
-  }
-  
-  // 感谢
-  if (lowerMessage.includes('谢谢') || lowerMessage.includes('thank')) {
-    const replies = [
-      '不客气！继续加油，享受游戏吧！',
-      '不用谢！让我们继续游戏吧！',
-      '很高兴能和你一起玩！'
-    ]
-    return getNonRepeatingReply(replies, recentReplies)
-  }
-  
-  // 鼓励
-  if (lowerMessage.includes('加油') || lowerMessage.includes('努力')) {
-    const replies = [
-      '一起加油！我相信你能下得很好！',
-      '加油！让我们都发挥出最好的水平！',
-      '一起努力，享受游戏的过程！'
-    ]
-    return getNonRepeatingReply(replies, recentReplies)
-  }
-  
-  // 关于AI
-  if (lowerMessage.includes('你是谁') || lowerMessage.includes('你是什么') || lowerMessage.includes('介绍')) {
-    const replies = [
-      '我是默认AI助手，是一个本地AI，不需要网络连接就能和你聊天。虽然功能简单，但我会尽力和你互动！',
-      '我是你的五子棋AI对手，一个本地AI助手，随时可以和你下棋聊天。',
-      '我是默认AI助手，专门陪你下五子棋的！'
-    ]
-    return getNonRepeatingReply(replies, recentReplies)
-  }
-  
-  // 默认回复 - 根据消息长度给出不同回复
-  const defaultReplies = lowerMessage.length <= 5 
-    ? [
-        `"${userMessage}"？我明白了。让我们继续下棋吧！`,
-        `"${userMessage}"？好的，我记住了。`,
-        `"${userMessage}"？继续下棋吧！`
-      ]
-    : [
-        `我理解你说的"${userMessage}"。虽然我是本地AI，功能有限，但我会认真对待每一局游戏。让我们继续下棋吧！`,
-        `关于"${userMessage}"，我明白了。让我们继续游戏吧！`,
-        `"${userMessage}"，好的，我理解了。继续下棋吧！`
-      ]
-  return getNonRepeatingReply(defaultReplies, recentReplies)
+  // 引导用户使用坐标格式
+  return `请使用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。坐标范围是 0-14，横轴x对应列，纵轴y对应行。`
 }
 
 // 辅助函数：从回复列表中选择一个不与最近回复重复的回复
@@ -295,6 +489,16 @@ const GomokuGame = () => {
   })
   const [inputMessage, setInputMessage] = useState('')
   const [isSendingMessage, setIsSendingMessage] = useState(false)
+  
+  // 聊天对弈棋盘状态（独立于游戏棋盘）
+  const [chatBoard, setChatBoard] = useState(() => 
+    Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY))
+  )
+  const [chatPlayerColor, setChatPlayerColor] = useState(BLACK) // 用户在聊天中执黑
+  const [chatAIColor, setChatAIColor] = useState(WHITE) // AI在聊天中执白
+  const [chatGameOver, setChatGameOver] = useState(false)
+  const [chatWinner, setChatWinner] = useState(null)
+  const [chatMoveHistory, setChatMoveHistory] = useState([])
   
   const boardRef = useRef(board)
   const isPlayerTurnRef = useRef(isPlayerTurn)
@@ -1378,7 +1582,18 @@ const GomokuGame = () => {
         
         // 模拟网络延迟
         setTimeout(() => {
-          const reply = getDefaultAIReply(messageToSend, recentBotReplies)
+          const reply = getDefaultAIReply(
+            messageToSend, 
+            recentBotReplies, 
+            chatBoard, 
+            chatPlayerColor, 
+            chatAIColor, 
+            chatGameOver,
+            setChatBoard,
+            setChatGameOver,
+            setChatWinner,
+            setChatMoveHistory
+          )
           const botMessage = {
             type: 'bot',
             content: reply,
@@ -1391,7 +1606,7 @@ const GomokuGame = () => {
       
       return newMessages
     })
-  }, [inputMessage, selectedBot, isSendingMessage, useDefaultAI])
+  }, [inputMessage, selectedBot, isSendingMessage, useDefaultAI, chatBoard, chatPlayerColor, chatAIColor, chatGameOver])
 
   // 判断是否是最后一步
   const isLastMove = useCallback((row, col) => {
@@ -1438,11 +1653,6 @@ const GomokuGame = () => {
         return (
           <div className="ai-chat-top-right">
             <div className="ai-avatar-with-wreath">
-              <div className="christmas-wreath">
-                <div className="wreath-ring"></div>
-                <div className="wreath-berries"></div>
-                <div className="wreath-bells"></div>
-              </div>
               <img 
                 src={selectedBot.avatar || '/default-avatar.png'} 
                 alt={selectedBot.name}
