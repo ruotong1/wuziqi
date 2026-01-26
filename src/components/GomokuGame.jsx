@@ -140,45 +140,96 @@ const getDefaultAI = (avatar) => ({
 })
 
 // 默认AI本地模拟回复函数
-const getDefaultAIReply = (userMessage) => {
+const getDefaultAIReply = (userMessage, recentReplies = []) => {
   const lowerMessage = userMessage.toLowerCase().trim()
   
   // 问候语
   if (lowerMessage.includes('你好') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-    return '你好！我是默认AI助手，很高兴和你聊天！让我们一起来下五子棋吧！'
+    const replies = [
+      '你好！我是默认AI助手，很高兴和你聊天！让我们一起来下五子棋吧！',
+      '你好呀！准备好和我下五子棋了吗？',
+      '嗨！很高兴见到你，让我们开始游戏吧！'
+    ]
+    return getNonRepeatingReply(replies, recentReplies)
   }
   
   // 关于下棋
   if (lowerMessage.includes('下棋') || lowerMessage.includes('游戏') || lowerMessage.includes('五子棋')) {
-    return '让我们一起来下五子棋吧！我会认真思考每一步的。你准备好了吗？'
+    const replies = [
+      '让我们一起来下五子棋吧！我会认真思考每一步的。你准备好了吗？',
+      '好的，让我们开始下五子棋！我会全力以赴的。',
+      '五子棋是个有趣的游戏，让我们开始吧！'
+    ]
+    return getNonRepeatingReply(replies, recentReplies)
   }
   
   // 关于策略
   if (lowerMessage.includes('策略') || lowerMessage.includes('怎么下') || lowerMessage.includes('如何')) {
-    return '五子棋的关键是要同时考虑进攻和防守。我会尽量阻止你连成五子，同时寻找自己的机会。'
+    const replies = [
+      '五子棋的关键是要同时考虑进攻和防守。我会尽量阻止你连成五子，同时寻找自己的机会。',
+      '我的策略是攻守兼备，既要阻止你连成五子，也要寻找自己的获胜机会。',
+      '我会根据棋盘情况灵活调整策略，既要防守也要进攻。'
+    ]
+    return getNonRepeatingReply(replies, recentReplies)
   }
   
   // 感谢
   if (lowerMessage.includes('谢谢') || lowerMessage.includes('thank')) {
-    return '不客气！继续加油，享受游戏吧！'
+    const replies = [
+      '不客气！继续加油，享受游戏吧！',
+      '不用谢！让我们继续游戏吧！',
+      '很高兴能和你一起玩！'
+    ]
+    return getNonRepeatingReply(replies, recentReplies)
   }
   
   // 鼓励
   if (lowerMessage.includes('加油') || lowerMessage.includes('努力')) {
-    return '一起加油！我相信你能下得很好！'
+    const replies = [
+      '一起加油！我相信你能下得很好！',
+      '加油！让我们都发挥出最好的水平！',
+      '一起努力，享受游戏的过程！'
+    ]
+    return getNonRepeatingReply(replies, recentReplies)
   }
   
   // 关于AI
   if (lowerMessage.includes('你是谁') || lowerMessage.includes('你是什么') || lowerMessage.includes('介绍')) {
-    return '我是默认AI助手，是一个本地AI，不需要网络连接就能和你聊天。虽然功能简单，但我会尽力和你互动！'
+    const replies = [
+      '我是默认AI助手，是一个本地AI，不需要网络连接就能和你聊天。虽然功能简单，但我会尽力和你互动！',
+      '我是你的五子棋AI对手，一个本地AI助手，随时可以和你下棋聊天。',
+      '我是默认AI助手，专门陪你下五子棋的！'
+    ]
+    return getNonRepeatingReply(replies, recentReplies)
   }
   
   // 默认回复 - 根据消息长度给出不同回复
-  if (lowerMessage.length <= 5) {
-    return `"${userMessage}"？我明白了。让我们继续下棋吧！`
-  } else {
-    return `我理解你说的"${userMessage}"。虽然我是本地AI，功能有限，但我会认真对待每一局游戏。让我们继续下棋吧！`
-  }
+  const defaultReplies = lowerMessage.length <= 5 
+    ? [
+        `"${userMessage}"？我明白了。让我们继续下棋吧！`,
+        `"${userMessage}"？好的，我记住了。`,
+        `"${userMessage}"？继续下棋吧！`
+      ]
+    : [
+        `我理解你说的"${userMessage}"。虽然我是本地AI，功能有限，但我会认真对待每一局游戏。让我们继续下棋吧！`,
+        `关于"${userMessage}"，我明白了。让我们继续游戏吧！`,
+        `"${userMessage}"，好的，我理解了。继续下棋吧！`
+      ]
+  return getNonRepeatingReply(defaultReplies, recentReplies)
+}
+
+// 辅助函数：从回复列表中选择一个不与最近回复重复的回复
+const getNonRepeatingReply = (replies, recentReplies = []) => {
+  // 过滤掉与最近3条回复相同的选项
+  const availableReplies = replies.filter(reply => 
+    !recentReplies.slice(-3).includes(reply)
+  )
+  
+  // 如果所有选项都被过滤掉了，使用所有选项
+  const finalReplies = availableReplies.length > 0 ? availableReplies : replies
+  
+  // 随机选择一个
+  return finalReplies[Math.floor(Math.random() * finalReplies.length)]
 }
 
 const GomokuGame = () => {
@@ -1310,25 +1361,36 @@ const GomokuGame = () => {
       timestamp: new Date()
     }
 
-    setChatMessages(prev => [...prev, userMessage])
     const messageToSend = inputMessage
     setInputMessage('')
     setIsSendingMessage(true)
 
-    // 如果使用默认AI，使用本地模拟回复
-    if (useDefaultAI) {
-      // 模拟网络延迟
-      setTimeout(() => {
-        const reply = getDefaultAIReply(messageToSend)
-        const botMessage = {
-          type: 'bot',
-          content: reply,
-          timestamp: new Date()
-        }
-        setChatMessages(prev => [...prev, botMessage])
-        setIsSendingMessage(false)
-      }, 500 + Math.random() * 500) // 500-1000ms延迟，模拟真实AI响应
-    }
+    setChatMessages(prev => {
+      const newMessages = [...prev, userMessage]
+      
+      // 如果使用默认AI，使用本地模拟回复
+      if (useDefaultAI) {
+        // 获取最近的AI回复（用于避免重复）
+        const recentBotReplies = prev
+          .filter(msg => msg.type === 'bot')
+          .map(msg => msg.content)
+          .slice(-3)
+        
+        // 模拟网络延迟
+        setTimeout(() => {
+          const reply = getDefaultAIReply(messageToSend, recentBotReplies)
+          const botMessage = {
+            type: 'bot',
+            content: reply,
+            timestamp: new Date()
+          }
+          setChatMessages(prevMsgs => [...prevMsgs, botMessage])
+          setIsSendingMessage(false)
+        }, 500 + Math.random() * 500) // 500-1000ms延迟，模拟真实AI响应
+      }
+      
+      return newMessages
+    })
   }, [inputMessage, selectedBot, isSendingMessage, useDefaultAI])
 
   // 判断是否是最后一步
@@ -1420,13 +1482,11 @@ const GomokuGame = () => {
             </div>
           ) : (
             <div className="current-player">
-              <div className={`player-indicator ${currentPlayer === BLACK ? 'black' : 'white'}`}></div>
-              <span>
-                {isPlayerTurn 
-                  ? `你的回合 (${playerColor === BLACK ? '黑棋' : '白棋'})`
-                  : `AI思考中... (${aiColor === BLACK ? '黑棋' : '白棋'})`
-                }
-              </span>
+              {selectedBot && (
+                <div className="ai-turn-message">
+                  {isPlayerTurn ? '该你了' : '我想想'}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1622,23 +1682,7 @@ const GomokuGame = () => {
               <div className="footer-icon circle">○</div>
             </div>
           </div>
-          <div className="footer-buttons">
-            <button className="start-button" onClick={handleReset}>
-              开始
-            </button>
-            <button 
-              className={`start-button ${skillMode ? 'active' : ''}`} 
-              onClick={toggleSkillMode}
-              disabled={gameOver}
-            >
-              技能
-            </button>
-            <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
-              历史记录
-            </button>
-          </div>
-          
-          {/* 底部输入区域 */}
+          {/* 聊天输入区域 - 移到按钮上方 */}
           {selectedBot && (
             <div className="chat-input-area-bottom">
               <input
@@ -1659,6 +1703,22 @@ const GomokuGame = () => {
               </button>
             </div>
           )}
+          
+          <div className="footer-buttons">
+            <button className="start-button" onClick={handleReset}>
+              开始
+            </button>
+            <button 
+              className={`start-button ${skillMode ? 'active' : ''}`} 
+              onClick={toggleSkillMode}
+              disabled={gameOver}
+            >
+              技能
+            </button>
+            <button className="settings-button" onClick={() => setShowHistory(!showHistory)}>
+              历史记录
+            </button>
+          </div>
         </div>
 
 
