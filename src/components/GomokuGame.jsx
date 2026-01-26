@@ -395,7 +395,12 @@ const getDefaultAIReply = (userMessage, recentReplies = [], chatBoardState, chat
   
   // 非坐标格式的回复
   if (lowerMessage.includes('你好') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-    return '你好！我是五子棋对弈AI，请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。'
+    const greetings = [
+      '你好！我是五子棋对弈AI，请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。',
+      '你好呀！让我们开始下五子棋吧！请用 (x,y) 格式告诉我你的落子位置，比如 (7,7) 就是棋盘中心哦~',
+      '嗨！准备好下五子棋了吗？请用 (x,y) 格式告诉我你的第一手，例如 (7,7) 表示中心位置。'
+    ]
+    return getNonRepeatingReply(greetings, recentReplies)
   }
   
   if (lowerMessage.includes('下棋') || lowerMessage.includes('游戏') || lowerMessage.includes('五子棋') || lowerMessage.includes('开始')) {
@@ -405,11 +410,23 @@ const getDefaultAIReply = (userMessage, recentReplies = [], chatBoardState, chat
     setChatGameOver(false)
     setChatWinner(null)
     setChatMoveHistory([])
-    return '好的，让我们开始下五子棋吧！请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。你执黑先手，我执白。'
+    const startReplies = [
+      '好的，让我们开始下五子棋吧！请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。你执黑先手，我执白。',
+      '太好了！新的一局开始啦~请用 (x,y) 格式告诉我你的第一手，比如 (7,7) 就是中心位置。你执黑，我执白。',
+      '让我们开始吧！请用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。你执黑先手哦~'
+    ]
+    return getNonRepeatingReply(startReplies, recentReplies)
   }
   
-  // 引导用户使用坐标格式
-  return `请使用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。坐标范围是 0-14，横轴x对应列，纵轴y对应行。`
+  // 引导用户使用坐标格式 - 添加多个备选回复避免重复
+  const formatGuides = [
+    `请使用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。坐标范围是 0-14，横轴x对应列，纵轴y对应行。`,
+    `请用 (x,y) 格式输入你的落子坐标哦~比如 (7,7) 就是棋盘中心。坐标范围是 0-14，x是横轴（列），y是纵轴（行）。`,
+    `我需要你使用 (x,y) 格式告诉我落子位置，例如 (7,7) 表示中心。坐标范围 0-14，x对应列，y对应行。`,
+    `请按照 (x,y) 格式输入坐标，例如 (7,7) 是棋盘中心位置。坐标范围 0-14，横轴x是列，纵轴y是行。`,
+    `请用 (x,y) 格式告诉我你的落子位置~例如 (7,7) 表示中心。坐标范围是 0-14，x是列，y是行。`
+  ]
+  return getNonRepeatingReply(formatGuides, recentReplies)
 }
 
 // 辅助函数：从回复列表中选择一个不与最近回复重复的回复
