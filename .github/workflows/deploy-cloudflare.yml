@@ -1,0 +1,56 @@
+name: Deploy to Cloudflare Pages
+
+# 工作流说明：
+# 当代码推送到 main 或 master 分支时，自动构建 React 项目并部署到 Cloudflare Pages
+#
+# 首次使用前需要配置 GitHub Secrets：
+# 1. 访问 GitHub 仓库 → Settings → Secrets and variables → Actions
+# 2. 添加以下 Secrets：
+#    - CLOUDFLARE_API_TOKEN: Cloudflare API Token
+#      生成方式：Cloudflare Dashboard → My Profile → API Tokens → Create Token
+#      权限要求：Account: Cloudflare Pages: Edit
+#    - CLOUDFLARE_ACCOUNT_ID: Cloudflare Account ID
+#      获取方式：Cloudflare Dashboard → 右侧边栏可以看到 Account ID
+#    - CLOUDFLARE_PROJECT_NAME: (可选) Cloudflare Pages 项目名称
+#      如果不设置，将使用仓库名称
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - deploy  # 如果使用 deploy 分支
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        env:
+          # 如果需要构建时的环境变量，可以在这里添加
+          # VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME || github.event.repository.name }}
+          directory: dist
+          # gitHubToken: ${{ secrets.GITHUB_TOKEN }}  # 可选：用于在 Cloudflare 中显示部署状态

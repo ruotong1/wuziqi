@@ -393,12 +393,12 @@ const getDefaultAIReply = (userMessage, recentReplies = [], chatBoardState, chat
     }
   }
   
-  // 非坐标格式的回复
+  // 非坐标格式的回复 - 改为友好自然的对话
   if (lowerMessage.includes('你好') || lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
     const greetings = [
-      '你好！我是五子棋对弈AI，请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。',
-      '你好呀！让我们开始下五子棋吧！请用 (x,y) 格式告诉我你的落子位置，比如 (7,7) 就是棋盘中心哦~',
-      '嗨！准备好下五子棋了吗？请用 (x,y) 格式告诉我你的第一手，例如 (7,7) 表示中心位置。'
+      '你好！我是五子棋对弈AI，准备好和我下棋了吗？',
+      '你好呀！让我们开始下五子棋吧！',
+      '嗨！很高兴和你一起下五子棋~'
     ]
     return getNonRepeatingReply(greetings, recentReplies)
   }
@@ -411,36 +411,43 @@ const getDefaultAIReply = (userMessage, recentReplies = [], chatBoardState, chat
     setChatWinner(null)
     setChatMoveHistory([])
     const startReplies = [
-      '好的，让我们开始下五子棋吧！请用 (x,y) 格式告诉我你的第一手落子位置，例如 (7,7) 表示棋盘中心。你执黑先手，我执白。',
-      '太好了！新的一局开始啦~请用 (x,y) 格式告诉我你的第一手，比如 (7,7) 就是中心位置。你执黑，我执白。',
-      '让我们开始吧！请用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。你执黑先手哦~'
+      '好的，让我们开始下五子棋吧！你执黑先手，我执白。请用 (x,y) 格式告诉我你的第一手，例如 (7,7) 表示棋盘中心。',
+      '太好了！新的一局开始啦~你执黑，我执白。请用 (x,y) 格式告诉我你的第一手，比如 (7,7) 就是中心位置。',
+      '让我们开始吧！你执黑先手哦~请用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。'
     ]
     return getNonRepeatingReply(startReplies, recentReplies)
   }
   
-  // 引导用户使用坐标格式 - 添加多个备选回复避免重复
-  const formatGuides = [
-    `请使用 (x,y) 格式告诉我你的落子位置，例如 (7,7) 表示棋盘中心。坐标范围是 0-14，横轴x对应列，纵轴y对应行。`,
-    `请用 (x,y) 格式输入你的落子坐标哦~比如 (7,7) 就是棋盘中心。坐标范围是 0-14，x是横轴（列），y是纵轴（行）。`,
-    `我需要你使用 (x,y) 格式告诉我落子位置，例如 (7,7) 表示中心。坐标范围 0-14，x对应列，y对应行。`,
-    `请按照 (x,y) 格式输入坐标，例如 (7,7) 是棋盘中心位置。坐标范围 0-14，横轴x是列，纵轴y是行。`,
-    `请用 (x,y) 格式告诉我你的落子位置~例如 (7,7) 表示中心。坐标范围是 0-14，x是列，y是行。`
+  // 其他非坐标格式的回复 - 改为友好自然的对话，不再总是提示坐标格式
+  const friendlyReplies = [
+    '我在等你落子呢~请用 (x,y) 格式告诉我你的位置，比如 (7,7) 就是中心。',
+    '该你下棋了！请用 (x,y) 格式输入坐标，例如 (7,7) 表示中心位置。',
+    '轮到你啦~请用 (x,y) 格式告诉我你的落子位置，比如 (7,7) 是棋盘中心。',
+    '我在思考下一步呢，该你下棋了！请用 (x,y) 格式输入，例如 (7,7) 表示中心。',
+    '该你出招了！请用 (x,y) 格式告诉我你的落子，比如 (7,7) 就是中心位置。',
+    '我在等你呢~请用 (x,y) 格式输入坐标，例如 (7,7) 表示棋盘中心。',
+    '该你下棋啦！请用 (x,y) 格式告诉我你的位置，比如 (7,7) 是中心。',
+    '轮到你出棋了~请用 (x,y) 格式输入，例如 (7,7) 表示中心位置。',
+    '我在思考中，该你下棋了！请用 (x,y) 格式告诉我你的落子，比如 (7,7) 就是中心。',
+    '该你出招啦~请用 (x,y) 格式输入坐标，例如 (7,7) 表示棋盘中心。'
   ]
-  return getNonRepeatingReply(formatGuides, recentReplies)
+  return getNonRepeatingReply(friendlyReplies, recentReplies)
 }
 
 // 辅助函数：从回复列表中选择一个不与最近回复重复的回复
 const getNonRepeatingReply = (replies, recentReplies = []) => {
-  // 过滤掉与最近3条回复相同的选项
-  const availableReplies = replies.filter(reply => 
-    !recentReplies.slice(-3).includes(reply)
-  )
+  if (!replies || replies.length === 0) return ''
   
-  // 如果所有选项都被过滤掉了，使用所有选项
+  // 过滤掉与最近5条回复相同的选项（增加检查范围）
+  const recentSet = new Set(recentReplies.slice(-5))
+  const availableReplies = replies.filter(reply => !recentSet.has(reply))
+  
+  // 如果所有选项都被过滤掉了，使用所有选项（确保总是能返回一个）
   const finalReplies = availableReplies.length > 0 ? availableReplies : replies
   
   // 随机选择一个
-  return finalReplies[Math.floor(Math.random() * finalReplies.length)]
+  const randomIndex = Math.floor(Math.random() * finalReplies.length)
+  return finalReplies[randomIndex]
 }
 
 const GomokuGame = () => {
