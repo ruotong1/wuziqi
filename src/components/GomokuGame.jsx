@@ -1792,28 +1792,30 @@ const GomokuGame = () => {
 
         {/* 技能面板 */}
         {showSkillPanel && (
-          <div className="skill-panel">
-            <div className="skill-header">
-              <h3>技能库</h3>
-              <button className="close-skill q-font-button" onClick={() => setShowSkillPanel(false)}>✕</button>
-            </div>
-            <div className="skill-list">
-              {skills.map((skill) => (
-                <button
-                  key={skill.id}
-                  className={`skill-button ${usedSkills.includes(skill.id) && selectedSkill !== 'weiyu' ? 'used' : ''} ${selectedSkill === 'weiyu' ? 'weiyu-selected' : ''}`}
-                  onClick={() => handleSelectSkill(skill.id, selectedSkill)}
-                  disabled={gameOver || (usedSkills.includes(skill.id) && selectedSkill !== 'weiyu')}
-                >
-                  <div className="skill-name">{skill.name}</div>
-                  <div className="skill-desc">{skill.desc}</div>
+          <div className="modal-overlay" onClick={() => setShowSkillPanel(false)}>
+            <div className="skill-panel modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="skill-header">
+                <h3>技能库</h3>
+                <button className="close-skill q-font-button" onClick={() => setShowSkillPanel(false)}>✕</button>
+              </div>
+              <div className="skill-list">
+                {skills.map((skill) => (
+                  <button
+                    key={skill.id}
+                    className={`skill-button ${usedSkills.includes(skill.id) && selectedSkill !== 'weiyu' ? 'used' : ''} ${selectedSkill === 'weiyu' ? 'weiyu-selected' : ''}`}
+                    onClick={() => handleSelectSkill(skill.id, selectedSkill)}
+                    disabled={gameOver || (usedSkills.includes(skill.id) && selectedSkill !== 'weiyu')}
+                  >
+                    <div className="skill-name">{skill.name}</div>
+                    <div className="skill-desc">{skill.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="skill-panel-footer">
+                <button className="skill-return-button" onClick={() => setShowSkillPanel(false)}>
+                  返回棋盘
                 </button>
-              ))}
-            </div>
-            <div className="skill-panel-footer">
-              <button className="skill-return-button" onClick={() => setShowSkillPanel(false)}>
-                返回棋盘
-              </button>
+              </div>
             </div>
           </div>
         )}
@@ -1872,33 +1874,35 @@ const GomokuGame = () => {
 
         {/* 历史记录面板 */}
         {showHistory && (
-          <div className="history-panel">
-            <div className="history-header">
-              <h3>历史记录</h3>
-              <button className="close-history q-font-button" onClick={() => setShowHistory(false)}>✕</button>
+          <div className="modal-overlay" onClick={() => setShowHistory(false)}>
+            <div className="history-panel modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="history-header">
+                <h3>历史记录</h3>
+                <button className="close-history q-font-button" onClick={() => setShowHistory(false)}>✕</button>
+              </div>
+              {gameHistory.length === 0 ? (
+                <div className="no-history q-font-text">暂无历史记录</div>
+              ) : (
+                <>
+                  <div className="history-list-header">
+                    <span className="history-list-checkbox">☐</span>
+                    <span className="history-list-date">日期</span>
+                    <span className="history-list-winner">胜出局</span>
+                  </div>
+                  <div className="history-list">
+                    {gameHistory.map((record) => (
+                      <div key={record.id} className="history-item q-font-text">
+                        <span className="history-item-radio">○</span>
+                        <span className="history-date">{record.date}</span>
+                        <span className={`history-winner ${record.winner === '玩家' ? 'player-win' : 'ai-win'}`}>
+                          {record.winner === '玩家' ? '胜利' : '失败'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-            {gameHistory.length === 0 ? (
-              <div className="no-history q-font-text">暂无历史记录</div>
-            ) : (
-              <>
-                <div className="history-list-header">
-                  <span className="history-list-checkbox">☐</span>
-                  <span className="history-list-date">日期</span>
-                  <span className="history-list-winner">胜出局</span>
-                </div>
-                <div className="history-list">
-                  {gameHistory.map((record) => (
-                    <div key={record.id} className="history-item q-font-text">
-                      <span className="history-item-radio">○</span>
-                      <span className="history-date">{record.date}</span>
-                      <span className={`history-winner ${record.winner === '玩家' ? 'player-win' : 'ai-win'}`}>
-                        {record.winner === '玩家' ? '胜利' : '失败'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
           </div>
         )}
 

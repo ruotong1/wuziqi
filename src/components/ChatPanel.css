@@ -270,6 +270,18 @@
   font-style: italic;
 }
 
+.dotting {
+  display: inline-block;
+  overflow: hidden;
+  width: 0;
+  vertical-align: bottom;
+  animation: ellipsis 1s steps(4, end) infinite;
+}
+
+@keyframes ellipsis {
+  to { width: 1.2em; }
+}
+
 .message-time {
   font-size: 0.75rem;
   color: #999;
@@ -343,5 +355,3 @@
   background: linear-gradient(135deg, rgba(255, 182, 193, 0.6) 0%, rgba(152, 251, 152, 0.6) 100%);
   border-radius: 10px;
 }
-
-

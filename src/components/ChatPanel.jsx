@@ -2,6 +2,19 @@ import React, { useState, useEffect, useRef } from 'react'
 import { searchBots, getBotDetail, getBotById, sendMessageToBot, setApiToken, getApiToken, setApiBaseUrl, getApiBaseUrl } from '../utils/botApi'
 import './ChatPanel.css'
 
+const typingHints = [
+  '正在组织语言…',
+  '想想怎么说更好…',
+  '查一下记忆…',
+  '给你一个更贴心的答案…',
+  '稍等，我理理思路…',
+  '飞速打字中…'
+]
+
+const randomHint = () => typingHints[Math.floor(Math.random() * typingHints.length)]
+
+const makeId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`
+
 const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
   const [bots, setBots] = useState([])
   const [selectedBot, setSelectedBot] = useState(null)
@@ -10,10 +23,12 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [botIdInput, setBotIdInput] = useState('') // 直接输入bot_id
   const [isLoading, setIsLoading] = useState(false)
+  const [typingText, setTypingText] = useState('')
   const [apiToken, setApiTokenState] = useState(getApiToken())
   const [apiBaseUrl, setApiBaseUrlState] = useState(getApiBaseUrl())
   const messagesEndRef = useRef(null)
   const chatParentIdRef = useRef(null)
+  const timersRef = useRef([])
 
   // 滚动到底部
   const scrollToBottom = () => {
@@ -53,8 +68,10 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
       if (data.code === 0 && data.data) {
         setSelectedBot(data.data)
         setMessages([{
+          id: makeId(),
           type: 'system',
-          content: `已连接到 ${data.data.name}，开始聊天吧！`
+          content: `已连接到 ${data.data.name}，开始聊天吧！`,
+          timestamp: new Date()
         }])
         chatParentIdRef.current = null
       }
@@ -84,8 +101,10 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
       if (data.code === 0 && data.data) {
         setSelectedBot(data.data)
         setMessages([{
+          id: makeId(),
           type: 'system',
-          content: `已连接到 ${data.data.name}，开始聊天吧！`
+          content: `已连接到 ${data.data.name}，开始聊天吧！`,
+          timestamp: new Date()
         }])
         chatParentIdRef.current = null
         setBotIdInput('') // 清空输入
@@ -100,11 +119,47 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
     }
   }
 
+  // 清理所有计时器
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearInterval)
+      timersRef.current = []
+    }
+  }, [])
+
+  const streamInBotMessage = (fullText) => {
+    const id = makeId()
+    const targetLength = fullText.length
+    const step = Math.max(2, Math.floor(targetLength / 24))
+    let current = 0
+
+    setMessages(prev => [...prev, {
+      id,
+      type: 'bot',
+      content: '',
+      timestamp: new Date(),
+      streaming: true
+    }])
+
+    const timer = setInterval(() => {
+      current = Math.min(targetLength, current + step)
+      setMessages(prev => prev.map(msg => msg.id === id ? { ...msg, content: fullText.slice(0, current) } : msg))
+      if (current >= targetLength) {
+        clearInterval(timer)
+        timersRef.current = timersRef.current.filter(t => t !== timer)
+        setMessages(prev => prev.map(msg => msg.id === id ? { ...msg, streaming: false } : msg))
+      }
+    }, 40 + Math.random() * 60)
+
+    timersRef.current.push(timer)
+  }
+
   // 发送消息
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !selectedBot) return
 
     const userMessage = {
+      id: makeId(),
       type: 'user',
       content: inputMessage,
       timestamp: new Date()
@@ -112,27 +167,26 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
 
     setMessages(prev => [...prev, userMessage])
     setInputMessage('')
+    setTypingText(randomHint())
     setIsLoading(true)
 
     try {
       const data = await sendMessageToBot(selectedBot.id, inputMessage, chatParentIdRef.current)
       if (data.code === 0 && data.data) {
-        const botMessage = {
-          type: 'bot',
-          content: data.data.message || data.data.content || '收到',
-          timestamp: new Date()
-        }
-        setMessages(prev => [...prev, botMessage])
+        const reply = data.data.message || data.data.content || '收到'
+        streamInBotMessage(reply)
         chatParentIdRef.current = data.data.parent_id || data.data.id
       }
     } catch (error) {
       console.error('发送消息失败:', error)
       setMessages(prev => [...prev, {
+        id: makeId(),
         type: 'error',
         content: '发送消息失败，请检查网络连接'
       }])
     } finally {
       setIsLoading(false)
+      setTypingText('')
     }
   }
 
@@ -143,16 +197,13 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
     try {
       const data = await sendMessageToBot(selectedBot.id, logMessage, chatParentIdRef.current)
       if (data.code === 0 && data.data) {
-        const botMessage = {
-          type: 'bot',
-          content: data.data.message || data.data.content || '收到',
-          timestamp: new Date()
-        }
-        setMessages(prev => [...prev, botMessage])
+        streamInBotMessage(data.data.message || data.data.content || '收到')
         chatParentIdRef.current = data.data.parent_id || data.data.id
       }
     } catch (error) {
       console.error('发送游戏日志失败:', error)
+    } finally {
+      setTypingText('')
     }
   }
 
@@ -250,12 +301,12 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
           <div className="chat-content">
             <div className="chat-messages">
               {messages.map((msg, index) => (
-                <div key={index} className={`chat-message ${msg.type}`}>
+                <div key={msg.id || index} className={`chat-message ${msg.type}`}>
                   {msg.type === 'bot' && selectedBot && (
                     <img src={selectedBot.avatar} alt={selectedBot.name} className="message-avatar" />
                   )}
                   <div className="message-content">
-                    <div className="message-text">{msg.content}</div>
+                    <div className={`message-text ${msg.streaming ? 'typing' : ''}`}>{msg.content}</div>
                     <div className="message-time">
                       {msg.timestamp?.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -265,7 +316,10 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
               {isLoading && (
                 <div className="chat-message bot">
                   <div className="message-content">
-                    <div className="message-text typing">正在输入...</div>
+                    <div className="message-text typing">
+                      {typingText}
+                      <span className="dotting">...</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -294,4 +348,3 @@ const ChatPanel = ({ isOpen, onClose, onGameLog }) => {
 }
 
 export default ChatPanel
-
